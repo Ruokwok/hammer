@@ -1,0 +1,6 @@
+name: Website
+path: wwwroot/www
+type: static
+domain:
+  - 'localhost'
+  - 'me.ruok.cc'
