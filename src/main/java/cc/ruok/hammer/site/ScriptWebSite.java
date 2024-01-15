@@ -34,6 +34,7 @@ public class ScriptWebSite extends WebSite {
 //            resp.getWriter().println(FileUtils.readFileToString(file, "utf-8"));
             FileInputStream inputStream = new FileInputStream(file);
             IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
+            inputStream.close();
         } catch (Http403Exception e) {
             resp.setStatus(403);
             resp.getWriter().println(e.getPage());
