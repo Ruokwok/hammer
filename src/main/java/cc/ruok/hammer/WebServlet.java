@@ -37,6 +37,8 @@ public class WebServlet extends HttpServlet {
         if (filetype.endsWith(".htm")) return "text/html";
         if (filetype.endsWith(".html")) return "text/html";
         if (filetype.endsWith(".htx")) return "text/html";
+        if (filetype.endsWith(".hs")) return "text/html";
+        if (filetype.endsWith(".hsp")) return "text/html";
         if (filetype.endsWith(".ico")) return "image/x-icon";
         if (filetype.endsWith(".img")) return "application/x-img";
         if (filetype.endsWith(".ipa")) return "application/vnd.iphone";

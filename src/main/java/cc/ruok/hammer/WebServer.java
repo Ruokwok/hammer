@@ -1,5 +1,6 @@
 package cc.ruok.hammer;
 
+import cc.ruok.hammer.site.ScriptWebSite;
 import cc.ruok.hammer.site.StaticWebSite;
 import cc.ruok.hammer.site.WebSite;
 import com.esotericsoftware.yamlbeans.YamlReader;
@@ -57,6 +58,8 @@ public class WebServer {
             WebSite site = null;
             if (config.type.equalsIgnoreCase("static")) {
                 site = new StaticWebSite(config);
+            } else if (config.type.equalsIgnoreCase("script")) {
+                site = new ScriptWebSite(config);
             }
             getInstance().sites.putIfAbsent(domain, site);
         }
