@@ -3,12 +3,15 @@ package cc.ruok.hammer.site;
 import cc.ruok.hammer.Config;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.WebServlet;
+import cc.ruok.hammer.engine.Engine;
+import cc.ruok.hammer.engine.EngineRequest;
 import cc.ruok.hammer.error.Http403Exception;
 import cc.ruok.hammer.error.Http404Exception;
 import cc.ruok.hammer.error.Http500Exception;
 import cc.ruok.hammer.error.HttpException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -24,6 +27,7 @@ public class ScriptWebSite extends WebSite {
     @Override
     public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            long start = System.currentTimeMillis();
             resp.setCharacterEncoding("utf8");
             File file = getFile(req);
             String type = WebServlet.getFileType(file.getName());
@@ -31,10 +35,21 @@ public class ScriptWebSite extends WebSite {
             if (type.equals("application/octet-stream")) {
                 resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
             }
-//            resp.getWriter().println(FileUtils.readFileToString(file, "utf-8"));
-            FileInputStream inputStream = new FileInputStream(file);
-            IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
-            inputStream.close();
+            if (file.getName().endsWith(".hsp")) {
+                EngineRequest er = EngineRequest.createEngineRequest(req);
+                String script = FileUtils.readFileToString(file, "utf-8");
+                Engine e = new Engine(script, er, req, resp.getWriter());
+                long end = System.currentTimeMillis();
+                resp.getWriter().println(e.execute());
+                Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
+                        req.getRemoteAddr() +
+                        " - " + req.getRequestURI() + "(" + (end - start) + "ms)");
+
+            } else {
+                FileInputStream inputStream = new FileInputStream(file);
+                IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
+                inputStream.close();
+            }
         } catch (Http403Exception e) {
             resp.setStatus(403);
             resp.getWriter().println(e.getPage());

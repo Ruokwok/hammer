@@ -1,5 +1,6 @@
 package cc.ruok.hammer;
 
+import cc.ruok.hammer.engine.Engine;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -12,8 +13,10 @@ public class Hammer {
     public static final File CONFIG_PATH = new File("config");
 
     public static void main(String[] args) {
+        System.setProperty("polyglot.js.nashorn-compat", "true");
         try {
             init();
+            Engine.loadBaseJs();
             WebServer.loadAll();
             WebServer server = WebServer.getInstance();
             server.start();
