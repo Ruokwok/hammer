@@ -4,6 +4,8 @@ import cc.ruok.hammer.Logger;
 import cn.hutool.core.util.StrUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.SourceSection;
 
 import javax.script.*;
 import java.io.IOException;
@@ -137,10 +139,7 @@ public class Engine {
             String compile = compile();
             engine.eval(compile);
         } catch (ScriptException e) {
-            String em = e.getMessage().replaceAll("System\\.output\\(\\);", "");
-            output("<p style='color:red'><strong>Error:</strong>" +
-                    StrUtil.sub(em, em.indexOf(":") + 1, -1) +
-                    "</p>");
+            error(e);
         }
 
 //        for (Content content : list) {
@@ -181,6 +180,17 @@ public class Engine {
             }
         }
         return sb.toString();
+    }
+
+    public void error(ScriptException e) {
+        Throwable cause = e.getCause();
+        String msg = cause.getMessage().replaceAll("System\\.output\\(\\);", "");
+        if (cause instanceof PolyglotException) {
+            PolyglotException pe = (PolyglotException) cause;
+            int line = pe.getSourceLocation().getStartLine();
+            msg += " (on line " + line + ")";
+        }
+        output("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
     }
 
     protected void output() {
