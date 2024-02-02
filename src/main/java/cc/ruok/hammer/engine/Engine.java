@@ -1,16 +1,15 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
-import cn.hutool.core.util.StrUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.SourceSection;
 
 import javax.script.*;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
+import java.util.*;
 
 public class Engine {
 
@@ -31,7 +30,12 @@ public class Engine {
         try {
             engine.put("System", new EngineSystem(this));
             engine.put("Request", request);
-            if (hsr != null) engine.put("GET", hsr.getParameterMap());
+            if (hsr != null) {
+//                engine.put("_PARAMS", hsr.getParameterMap());
+                engine.put("_GET", getParams(hsr.getQueryString()));
+                engine.put("_POST", getParams(getPostData(hsr)));
+            }
+
             engine.eval(baseJs);
         } catch (ScriptException e) {
             Logger.logException(e);
@@ -133,39 +137,15 @@ public class Engine {
     }
 
     public String execute() {
-        StringBuilder sb = new StringBuilder();
-
+        String sb = "";
         try {
             String compile = compile();
             engine.eval(compile);
         } catch (ScriptException e) {
             error(e);
         }
-
-//        for (Content content : list) {
-//            if (content.isScript()) {
-//                try {
-//                    engine.eval(content.toString());
-//                    List<Object> data = printData.getData();
-//                    if (data != null) {
-//                        for (Object obj : data) {
-//                            sb.append(obj.toString());
-//                        }
-//                    }
-//                    printData.clear();
-//                } catch (ScriptException e) {
-//                    Logger.logException(e);
-//                    String em = e.getMessage();
-//                    String msg = StrUtil.sub(em, em.indexOf(":") + 1, -1);
-//                    sb.append("<script>alert('The script encountered an error, please check the detailed information in the console.')</script>").
-//                            append("<script>console.error('").append(msg.replaceAll("[\r\n]", "\\\\n")).append("');</script>");
-//                }
-//            } else {
-//                sb.append(content);
-//            }
-//        }
         System.gc();
-        return sb.toString();
+        return sb;
     }
 
     public String compile() {
@@ -191,6 +171,39 @@ public class Engine {
             msg += " (on line " + line + ")";
         }
         output("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
+    }
+
+    public Map<String, String[]> getParams(String url) {
+        Map<String, String[]> map = new HashMap<>();
+        if (url == null) return map;
+        String[] split = url.split("&");
+        for (String s : split) {
+            if (s.contains("=")) {
+                String[] _s = s.split("=");
+                if (map.containsKey(_s[0])) {
+                    String[] values = map.get(_s[0]);
+                    List<String> l = new ArrayList<>(Arrays.asList(values));
+                    l.add(_s[1]);
+                    map.put(_s[0], l.toArray(new String[values.length + 1]));
+                } else {
+                    map.put(_s[0], new String[]{_s[1]});
+                }
+            }
+        }
+        return map;
+    }
+
+    private String getPostData(HttpServletRequest request) {
+        StringBuffer data = new StringBuffer();
+        String line = null;
+        BufferedReader reader = null;
+        try {
+            reader = request.getReader();
+            while (null != (line = reader.readLine()))
+                data.append(line);
+        } catch (IOException e) {
+        }
+        return data.toString();
     }
 
     protected void output() {
