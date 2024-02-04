@@ -26,8 +26,8 @@ public class EngineSystem {
         engine.output();
     }
 
-    public void output(String str) {
-        engine.output(str);
+    public void output(Object obj) {
+        engine.output(obj.toString());
     }
 
 }
