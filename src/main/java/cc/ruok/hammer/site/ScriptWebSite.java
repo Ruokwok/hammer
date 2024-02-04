@@ -38,7 +38,7 @@ public class ScriptWebSite extends WebSite {
             if (file.getName().endsWith(".hsp")) {
                 EngineRequest er = EngineRequest.createEngineRequest(req);
                 String script = FileUtils.readFileToString(file, "utf-8");
-                Engine e = new Engine(script, er, req, resp.getWriter());
+                Engine e = new Engine(script, er, req, resp.getWriter(), this);
                 long end = System.currentTimeMillis();
                 resp.getWriter().println(e.execute());
                 Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +

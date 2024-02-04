@@ -1,6 +1,7 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
+import cc.ruok.hammer.site.WebSite;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.PolyglotException;
@@ -21,15 +22,18 @@ public class Engine {
     private static String baseJs;
     private int i = 0;
     private PrintWriter writer;
+    private WebSite webSite;
 
-    public Engine(String script, EngineRequest request, HttpServletRequest hsr, PrintWriter writer) {
+    public Engine(String script, EngineRequest request, HttpServletRequest hsr, PrintWriter writer, WebSite webSite) {
         this.script = script;
         this.request = request;
         this.writer = writer;
+        this.webSite = webSite;
         analysis();
         try {
             engine.put("System", new EngineSystem(this));
             engine.put("Request", request);
+            engine.put("Files", new EngineFiles(this));
             if (hsr != null) {
 //                engine.put("_PARAMS", hsr.getParameterMap());
                 engine.put("_GET", getParams(hsr.getQueryString()));
@@ -43,7 +47,7 @@ public class Engine {
     }
 
     public Engine(String script) {
-        this(script, null, null, null);
+        this(script, null, null, null, null);
     }
 
     public void analysis() {
@@ -164,11 +168,19 @@ public class Engine {
 
     public void error(ScriptException e) {
         Throwable cause = e.getCause();
-        String msg = cause.getMessage().replaceAll("System\\.output\\(\\);", "");
+        StringBuilder msg = new StringBuilder(cause.getMessage().replaceAll("System\\.output\\(\\);", ""));
         if (cause instanceof PolyglotException) {
             PolyglotException pe = (PolyglotException) cause;
             int line = pe.getSourceLocation().getStartLine();
-            msg += " (on line " + line + ")";
+            msg.append(" (on line ").append(line).append(")");
+        } else {
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (StackTraceElement st : stackTrace) {
+                if (st.getClassName().equals("<js>")) {
+                    msg.append(" (on line ").append(st.getLineNumber()).append(")");
+                    break;
+                }
+            }
         }
         output("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
     }
@@ -191,6 +203,10 @@ public class Engine {
             }
         }
         return map;
+    }
+
+    public WebSite getWebSite() {
+        return webSite;
     }
 
     private String getPostData(HttpServletRequest request) {
