@@ -5,6 +5,7 @@ import cc.ruok.hammer.site.WebSite;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.SourceSection;
 
 import javax.script.*;
 import java.io.BufferedReader;
@@ -169,18 +170,32 @@ public class Engine {
     public void error(ScriptException e) {
         Throwable cause = e.getCause();
         StringBuilder msg = new StringBuilder(cause.getMessage().replaceAll("System\\.output\\(\\);", ""));
+        int line = 0;
         if (cause instanceof PolyglotException) {
             PolyglotException pe = (PolyglotException) cause;
-            int line = pe.getSourceLocation().getStartLine();
-            msg.append(" (on line ").append(line).append(")");
-        } else {
+            SourceSection location = pe.getSourceLocation();
+            if (location != null) line = location.getStartLine();
+        }
+        if (line == 0) {
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (StackTraceElement st : stackTrace) {
-                if (st.getClassName().equals("<js>")) {
-                    msg.append(" (on line ").append(st.getLineNumber()).append(")");
+                if (st.getClassName().equals("<js>") && st.getMethodName().equals(":program")) {
+                    line = st.getLineNumber();
                     break;
                 }
             }
+        }
+        if (line == 0) {
+            StackTraceElement[] stackTrace = cause.getStackTrace();
+            for (StackTraceElement st : stackTrace) {
+                if (st.getClassName().equals("<js>") && st.getMethodName().equals(":program")) {
+                    line = st.getLineNumber();
+                    break;
+                }
+            }
+        }
+        if (line > 0) {
+            msg.append(" (on line ").append(line).append(")");
         }
         output("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
     }
