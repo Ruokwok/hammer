@@ -7,7 +7,8 @@ function echo(obj) {
 function include(filename) {
     var file = getFile(filename);
     if (file.exists()) {
-        System.eval(file.read());
+        var script = System.include(file.read(), file.getPath());
+        eval(script);
     } else {
         throw new Error("the file \"" + filename + "\" is not exists.");
     }

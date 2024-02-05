@@ -2,9 +2,13 @@ package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EngineSystem {
 
     private final Engine engine;
+    private final List<String> includeList = new ArrayList<>();
 
     public EngineSystem(Engine engine) {
         this.engine = engine;
@@ -30,8 +34,14 @@ public class EngineSystem {
         engine.outputScript(obj.toString());
     }
 
-    public void eval(String str) {
-
+    public String include(String str, String file) throws EngineException {
+        Script script = new Script(str, engine);
+        if (includeList.contains(file)) {
+            throw new EngineException("prohibit circular include.");
+        } else {
+            includeList.add(file);
+            return script.getCompile();
+        }
     }
 
 }
