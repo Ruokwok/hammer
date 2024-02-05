@@ -1,8 +1,8 @@
 package cc.ruok.hammer;
 
 import cc.ruok.hammer.engine.Engine;
-import org.apache.commons.io.FileUtils;
 
+import javax.script.ScriptEngineManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +14,7 @@ public class Hammer {
 
     public static void main(String[] args) {
         System.setProperty("polyglot.js.nashorn-compat", "true");
+        new ScriptEngineManager().getEngineByName("graal.js");
         try {
             init();
             Engine.loadBaseJs();
