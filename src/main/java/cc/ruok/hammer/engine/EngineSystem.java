@@ -22,12 +22,16 @@ public class EngineSystem {
         Logger.warning(str);
     }
 
-    public void output() {
-        engine.output();
+    public void output(Object obj) {
+        engine.outputStatic(obj.toString());
     }
 
-    public void output(Object obj) {
-        engine.output(obj.toString());
+    public void outputScript(Object obj) {
+        engine.outputScript(obj.toString());
+    }
+
+    public void eval(String str) {
+
     }
 
 }

@@ -15,8 +15,9 @@ import java.util.*;
 
 public class Engine {
 
-    private String script;
-    private LinkedList<Content> list = new LinkedList<>();
+    private String str;
+    private Script script;
+    private Map<String, String> outputPool = new HashMap<>();
     private ScriptEngineManager manager = new ScriptEngineManager();
     private ScriptEngine engine = manager.getEngineByName("graal.js");
     private EngineRequest request;
@@ -25,12 +26,12 @@ public class Engine {
     private PrintWriter writer;
     private WebSite webSite;
 
-    public Engine(String script, EngineRequest request, HttpServletRequest hsr, PrintWriter writer, WebSite webSite) {
-        this.script = script;
+    public Engine(String str, EngineRequest request, HttpServletRequest hsr, PrintWriter writer, WebSite webSite) {
+        this.str = str;
+        this.script = new Script(str, this);
         this.request = request;
         this.writer = writer;
         this.webSite = webSite;
-        analysis();
         try {
             engine.put("System", new EngineSystem(this));
             engine.put("Request", request);
@@ -51,10 +52,15 @@ public class Engine {
         this(script, null, null, null, null);
     }
 
-    public void analysis() {
+    public List<Content> analysis() {
+        return analysis(str);
+    }
+
+    public List<Content> analysis(String script) {
+        LinkedList<Content> list = new LinkedList<>();
         if (!script.contains("<?hsp")) {
             list.add(new Content(script, false));
-            return;
+            return list;
         }
         char[] chars = script.toCharArray();
         boolean inScript = false;
@@ -136,6 +142,7 @@ public class Engine {
             }
         }
         list.add(new Content(buffer.toString(), inScript));
+        return list;
 //        for (Content content : list) {
 //            if (content.isScript()) System.out.println(content);
 //        }
@@ -144,27 +151,13 @@ public class Engine {
     public String execute() {
         String sb = "";
         try {
-            String compile = compile();
+            String compile = script.getCompile();
             engine.eval(compile);
         } catch (ScriptException e) {
             error(e);
         }
         System.gc();
         return sb;
-    }
-
-    public String compile() {
-        StringBuilder sb = new StringBuilder();
-        for (Content content : list) {
-            if (content.isScript()) {
-                sb.append(content);
-            } else {
-                int line = content.getLine();
-                sb.append("System.output();");
-                sb.append("\n".repeat(Math.max(0, line - 1)));
-            }
-        }
-        return sb.toString();
     }
 
     public void error(ScriptException e) {
@@ -197,7 +190,7 @@ public class Engine {
         if (line > 0) {
             msg.append(" (on line ").append(line).append(")");
         }
-        output("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
+        outputScript("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
     }
 
     public Map<String, String[]> getParams(String url) {
@@ -237,15 +230,18 @@ public class Engine {
         return data.toString();
     }
 
-    protected void output() {
-        while (list.get(i).isScript()) {
-            i++;
-        }
-        writer.print(list.get(i));
-        i++;
+    public void putOutput(String key, String value) {
+        outputPool.put(key, value);
     }
 
-    protected void output(String str) {
+    protected void outputStatic(String key) {
+        String value = outputPool.get(key);
+        if (value != null) {
+            writer.print(value);
+        }
+    }
+
+    protected void outputScript(String str) {
         writer.print(str);
     }
 
