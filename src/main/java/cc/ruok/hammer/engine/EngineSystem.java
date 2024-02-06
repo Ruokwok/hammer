@@ -4,6 +4,7 @@ import cc.ruok.hammer.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class EngineSystem {
 
@@ -27,11 +28,19 @@ public class EngineSystem {
     }
 
     public void output(Object obj) {
-        engine.outputStatic(obj.toString());
+        if (obj == null) {
+            engine.outputStatic(null);
+        } else {
+            engine.outputStatic(obj.toString());
+        }
     }
 
     public void outputScript(Object obj) {
-        engine.outputScript(obj.toString());
+        if (obj == null) {
+            engine.outputScript(null);
+        } else {
+            engine.outputScript(obj.toString());
+        }
     }
 
     public String include(String str, String file) throws EngineException {
@@ -42,6 +51,20 @@ public class EngineSystem {
             includeList.add(file);
             return script.getCompile();
         }
+    }
+
+    public Map<String, Object> getSession() {
+        return engine.getSessionData();
+    }
+
+    public void saveSession(Object obj) {
+        if (obj instanceof Map<?,?>) {
+            engine.saveSessionData((Map<String, Object>) obj);
+        }
+    }
+
+    public void sessionClose() {
+        engine.destroySession();
     }
 
 }

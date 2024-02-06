@@ -1,8 +1,9 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
-import cc.ruok.hammer.site.WebSite;
+import cc.ruok.hammer.site.ScriptWebSite;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
@@ -12,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Engine {
 
@@ -22,16 +24,19 @@ public class Engine {
     private ScriptEngine engine = manager.getEngineByName("graal.js");
     private EngineRequest request;
     private static String baseJs;
+    private static String finishJs;
     private int i = 0;
     private PrintWriter writer;
-    private WebSite webSite;
+    private ScriptWebSite webSite;
+    private HttpSession session;
 
-    public Engine(String str, EngineRequest request, HttpServletRequest hsr, PrintWriter writer, WebSite webSite) {
+    public Engine(String str, EngineRequest request, HttpServletRequest hsr, PrintWriter writer, ScriptWebSite webSite) {
         this.str = str;
         this.script = new Script(str, this);
         this.request = request;
         this.writer = writer;
         this.webSite = webSite;
+        this.session = hsr.getSession();
         try {
             engine.put("System", new EngineSystem(this));
             engine.put("Request", request);
@@ -154,6 +159,7 @@ public class Engine {
         try {
             String compile = script.getCompile();
             engine.eval(compile);
+            engine.eval(finishJs);
         } catch (ScriptException e) {
             error(e);
         }
@@ -214,8 +220,28 @@ public class Engine {
         return map;
     }
 
-    public WebSite getWebSite() {
+    public ScriptWebSite getWebSite() {
         return webSite;
+    }
+
+    public Map<String, Object> getSessionData() {
+        Enumeration<String> names = session.getAttributeNames();
+        Map<String, Object> map = new ConcurrentHashMap<>();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            map.put(name, session.getAttribute(name));
+        }
+        return map;
+    }
+
+    public void saveSessionData(Map<String, Object> map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            session.setAttribute(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public void destroySession() {
+        session.invalidate();
     }
 
     private String getPostData(HttpServletRequest request) {
@@ -249,6 +275,7 @@ public class Engine {
     public static void loadBaseJs() {
         try {
             baseJs = IOUtils.toString(Engine.class.getResourceAsStream("/engine.js"), "utf8");
+            finishJs = IOUtils.toString(Engine.class.getResourceAsStream("/finish.js"), "utf8");
         } catch (IOException e) {
             Logger.logException(e);
         }

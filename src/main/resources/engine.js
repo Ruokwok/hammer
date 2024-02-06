@@ -16,3 +16,13 @@ function include(filename) {
 function getFile(filename) {
     return Files.getFile(filename);
 }
+let _SESSION = {};
+function sessionStart() {
+    var data = System.getSession();
+    for (var key in data) {
+        _SESSION[key] = data[key];
+    }
+}
+function sessionClose() {
+    System.sessionClose();
+}

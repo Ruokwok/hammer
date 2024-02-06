@@ -1,0 +1,1 @@
+System.saveSession(_SESSION);
