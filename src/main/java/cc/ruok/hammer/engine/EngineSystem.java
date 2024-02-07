@@ -53,7 +53,8 @@ public class EngineSystem {
         }
     }
 
-    public Map<String, Object> getSession() {
+    public Map<String, Object> getSession(int time) {
+        engine.getSession().setMaxInactiveInterval(time);
         return engine.getSessionData();
     }
 

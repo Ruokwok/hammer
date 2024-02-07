@@ -244,6 +244,10 @@ public class Engine {
         session.invalidate();
     }
 
+    public HttpSession getSession() {
+        return session;
+    }
+
     private String getPostData(HttpServletRequest request) {
         StringBuffer data = new StringBuffer();
         String line = null;

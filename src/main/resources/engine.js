@@ -17,8 +17,8 @@ function getFile(filename) {
     return Files.getFile(filename);
 }
 let _SESSION = {};
-function sessionStart() {
-    var data = System.getSession();
+function sessionStart(sec = 3600) {
+    var data = System.getSession(sec);
     for (var key in data) {
         _SESSION[key] = data[key];
     }
