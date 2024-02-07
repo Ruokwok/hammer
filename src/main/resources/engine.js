@@ -16,7 +16,7 @@ function include(filename) {
 function getFile(filename) {
     return Files.getFile(filename);
 }
-let _SESSION = {};
+const _SESSION = {};
 function sessionStart(sec = 3600) {
     var data = System.getSession(sec);
     for (var key in data) {
@@ -25,4 +25,7 @@ function sessionStart(sec = 3600) {
 }
 function sessionClose() {
     System.sessionClose();
+}
+function setStatus(code = 200) {
+    System.setStatus(code);
 }

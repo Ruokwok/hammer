@@ -3,6 +3,7 @@ package cc.ruok.hammer.engine;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.site.ScriptWebSite;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.PolyglotException;
@@ -27,25 +28,27 @@ public class Engine {
     private static String finishJs;
     private int i = 0;
     private PrintWriter writer;
+    private HttpServletResponse response;
     private ScriptWebSite webSite;
     private HttpSession session;
 
-    public Engine(String str, EngineRequest request, HttpServletRequest hsr, PrintWriter writer, ScriptWebSite webSite) {
+    public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this.str = str;
         this.script = new Script(str, this);
-        this.request = request;
-        this.writer = writer;
+        this.request = EngineRequest.createEngineRequest(req);
+        this.writer = resp.getWriter();
+        this.response = resp;
         this.webSite = webSite;
-        this.session = hsr.getSession();
+        this.session = req.getSession();
         try {
             engine.put("System", new EngineSystem(this));
             engine.put("Request", request);
             engine.put("Files", new EngineFiles(this));
             engine.put("Date", new EngineDate(this));
-            if (hsr != null) {
+            if (req != null) {
 //                engine.put("_PARAMS", hsr.getParameterMap());
-                engine.put("_GET", getParams(hsr.getQueryString()));
-                engine.put("_POST", getParams(getPostData(hsr)));
+                engine.put("_GET", getParams(req.getQueryString()));
+                engine.put("_POST", getParams(getPostData(req)));
             }
 
             engine.eval(baseJs);
@@ -54,8 +57,8 @@ public class Engine {
         }
     }
 
-    public Engine(String script) {
-        this(script, null, null, null, null);
+    public Engine(String script) throws IOException {
+        this(script, null, null, null);
     }
 
     public List<Content> analysis() {
@@ -246,6 +249,10 @@ public class Engine {
 
     public HttpSession getSession() {
         return session;
+    }
+
+    public HttpServletResponse getResponse() {
+        return response;
     }
 
     private String getPostData(HttpServletRequest request) {

@@ -53,9 +53,13 @@ public class EngineSystem {
         }
     }
 
-    public Map<String, Object> getSession(int time) {
-        engine.getSession().setMaxInactiveInterval(time);
-        return engine.getSessionData();
+    public Map<String, Object> getSession(Object time) throws EngineException {
+        if (time instanceof Integer || time instanceof Long) {
+            engine.getSession().setMaxInactiveInterval((Integer) time);
+            return engine.getSessionData();
+        } else {
+            throw new EngineException("the params must be of type int.");
+        }
     }
 
     public void saveSession(Object obj) {
@@ -66,6 +70,14 @@ public class EngineSystem {
 
     public void sessionClose() {
         engine.destroySession();
+    }
+
+    public void setStatus(Object o) throws EngineException {
+        if (o instanceof Integer) {
+            engine.getResponse().setStatus((Integer) o);
+        } else {
+            throw new EngineException("the status code must be of type int.");
+        }
     }
 
 }
