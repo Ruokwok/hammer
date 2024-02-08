@@ -65,6 +65,12 @@ public class ScriptWebSite extends WebSite {
         }
     }
 
+    public boolean getPermission(String key) {
+        if (config.permission == null) return false;
+        if (!config.permission.containsKey(key)) return false;
+        return config.permission.get(key);
+    }
+
     private File getFile(HttpServletRequest request) throws HttpException {
         String url = request.getServletPath();
         File file = new File(config.path + url);

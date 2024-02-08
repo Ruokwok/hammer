@@ -11,6 +11,7 @@ public class Config {
     public String type;
     public List<String> domain;
     public HashMap<Integer, String> error_page;
+    public HashMap<String, Boolean> permission;
 
     @Override
     public Config clone() {
@@ -19,6 +20,7 @@ public class Config {
         config.path = path;
         config.type = type;
         config.domain = new ArrayList<>(domain);
+        config.permission = new HashMap<>(permission);
         if (error_page != null) config.error_page = new HashMap<>(error_page);
         return config;
     }

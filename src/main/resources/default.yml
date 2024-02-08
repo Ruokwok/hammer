@@ -3,4 +3,8 @@ path: wwwroot/www
 type: static
 domain:
   - 'localhost'
-  - 'me.ruok.cc'
+permission:
+  file_read: true
+  file_write: true
+  public_file_read: true
+  public_file_write: false

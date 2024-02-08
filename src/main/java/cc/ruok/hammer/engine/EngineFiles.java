@@ -11,7 +11,7 @@ public class EngineFiles {
     }
 
     public EngineFile getFile(String filename) {
-        return new EngineFile(new File(engine.getWebSite().getPath() + "/" + filename));
+        return new EngineFile(new File(engine.getWebSite().getPath() + "/" + filename), engine);
     }
 
 }
