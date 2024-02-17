@@ -14,6 +14,7 @@ public class Hammer {
 
     public static void main(String[] args) {
         System.setProperty("polyglot.js.nashorn-compat", "true");
+        System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
         new ScriptEngineManager().getEngineByName("graal.js");
         try {
             init();

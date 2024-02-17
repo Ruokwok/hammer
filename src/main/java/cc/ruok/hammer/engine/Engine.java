@@ -2,6 +2,7 @@ package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.site.ScriptWebSite;
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Request;
+import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
@@ -27,7 +29,7 @@ public class Engine {
     private Script script;
     private Map<String, String> outputPool = new HashMap<>();
     private ScriptEngineManager manager = new ScriptEngineManager();
-    private ScriptEngine engine = manager.getEngineByName("graal.js");
+    private ScriptEngine engine = GraalJSScriptEngine.create();
     private EngineRequest request;
     private HttpServletRequest req;
     private static String baseJs;
