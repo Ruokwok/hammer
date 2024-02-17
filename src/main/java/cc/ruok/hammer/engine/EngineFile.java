@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class EngineFile {
 
-    private final File file;
+    protected final File file;
     private final boolean read;
     private final boolean write;
 
@@ -38,6 +38,11 @@ public class EngineFile {
 
     public boolean isDir() {
         return file.isDirectory();
+    }
+
+    public long getSize() throws EngineException {
+        if (!read) throw new EngineException("no permission.");
+        return file.length();
     }
 
     public String read(String charset) throws EngineException {

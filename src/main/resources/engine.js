@@ -37,3 +37,6 @@ function sessionClose() {
 function setStatus(code = 200) {
     System.setStatus(code);
 }
+function md5(str) {
+    return Digest.md5(str);
+}
