@@ -45,6 +45,10 @@ public abstract class WebSite {
         return path;
     }
 
+    public String[] getDomains() {
+        return config.domain.toArray(new String[0]);
+    }
+
     public String getErrorPage(int code) {
         try {
             String c = String.valueOf(code);

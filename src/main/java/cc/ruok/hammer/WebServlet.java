@@ -2,12 +2,14 @@ package cc.ruok.hammer;
 
 import cc.ruok.hammer.site.WebSite;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+@MultipartConfig
 public class WebServlet extends HttpServlet {
 
     private WebServer server = WebServer.getInstance();
@@ -27,6 +29,8 @@ public class WebServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);
     }
+
+
 
     public static String getFileType(String filetype) {
         if (filetype.endsWith(".apk")) return "application/vnd.android.package-archive";
