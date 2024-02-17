@@ -37,6 +37,7 @@ public class Engine {
     private HttpServletResponse response;
     private ScriptWebSite webSite;
     private HttpSession session;
+    private EngineDatabase database = new EngineDatabase();
 
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this.str = str;
@@ -53,6 +54,8 @@ public class Engine {
             engine.put("Files", new EngineFiles(this));
             engine.put("Date", new EngineDate(this));
             engine.put("Http", new EngineHttp());
+            engine.put("Digest", new EngineDigester());
+            engine.put("Database", database);
             if (req != null) {
 //                engine.put("_PARAMS", hsr.getParameterMap());
                 engine.put("_GET", getParams(req.getQueryString()));
@@ -172,6 +175,7 @@ public class Engine {
             String compile = script.getCompile();
             engine.eval(compile);
             engine.eval(finishJs);
+            database.closeAll();
         } catch (ScriptException e) {
             error(e);
         }
