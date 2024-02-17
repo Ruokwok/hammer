@@ -2,10 +2,15 @@ package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.site.ScriptWebSite;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.server.Request;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
@@ -24,6 +29,7 @@ public class Engine {
     private ScriptEngineManager manager = new ScriptEngineManager();
     private ScriptEngine engine = manager.getEngineByName("graal.js");
     private EngineRequest request;
+    private HttpServletRequest req;
     private static String baseJs;
     private static String finishJs;
     private int i = 0;
@@ -39,6 +45,7 @@ public class Engine {
         this.writer = resp.getWriter();
         this.response = resp;
         this.webSite = webSite;
+        this.req = req;
         this.session = req.getSession();
         try {
             engine.put("System", new EngineSystem(this));
@@ -49,8 +56,9 @@ public class Engine {
 //                engine.put("_PARAMS", hsr.getParameterMap());
                 engine.put("_GET", getParams(req.getQueryString()));
                 engine.put("_POST", getParams(getPostData(req)));
-            }
 
+//                engine.put("_POST", null);
+            }
             engine.eval(baseJs);
         } catch (ScriptException e) {
             Logger.logException(e);
@@ -253,6 +261,10 @@ public class Engine {
 
     public HttpServletResponse getResponse() {
         return response;
+    }
+
+    public HttpServletRequest getRequest() {
+        return req;
     }
 
     private String getPostData(HttpServletRequest request) {

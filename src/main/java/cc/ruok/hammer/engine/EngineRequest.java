@@ -41,6 +41,11 @@ public abstract class EngineRequest {
             }
 
             @Override
+            public String getDomain() {
+                return request.getHeader("Host");
+            }
+
+            @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> map = new HashMap<>();
                 Enumeration<String> names = request.getHeaderNames();
@@ -64,6 +69,8 @@ public abstract class EngineRequest {
     public abstract String getProtocol();
 
     public abstract String getHeader(String key);
+
+    public abstract String getDomain();
 
     public abstract Map<String, String> getHeaders();
 }

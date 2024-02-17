@@ -1,8 +1,10 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
+import jakarta.servlet.http.Cookie;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +12,7 @@ public class EngineSystem {
 
     private final Engine engine;
     private final List<String> includeList = new ArrayList<>();
+    private Map<String, EngineCookie> cookies;
 
     public EngineSystem(Engine engine) {
         this.engine = engine;
@@ -80,4 +83,29 @@ public class EngineSystem {
         }
     }
 
+    public Map<String, EngineCookie> getCookies() {
+        if (cookies == null) {
+            cookies = new HashMap<>();
+            Cookie[] _cookie = engine.getRequest().getCookies();
+            for (Cookie c : _cookie) {
+                EngineCookie cookie = new EngineCookie();
+                cookie.name = c.getName();
+                cookie.value = c.getValue();
+                cookie.path = c.getPath();
+                cookie.domain = c.getDomain();
+                cookie.age = c.getMaxAge();
+                cookie.httpOnly = c.isHttpOnly();
+                cookies.put(c.getName(), cookie);
+            }
+        }
+        return cookies;
+    }
+
+    public void putCookie(String name, String value, String path, String domain, int maxAge, boolean httpOnly) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath(path);
+        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(httpOnly);
+        engine.getResponse().addCookie(cookie);
+    }
 }

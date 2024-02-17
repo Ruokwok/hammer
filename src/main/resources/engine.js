@@ -1,3 +1,11 @@
+const _COOKIE = System.getCookies();
+function addCookie(name, value, path = Request.getPath(), domain = Request.getDomain(), age = -1, httpOnly = false) {
+    System.putCookie(name, value, path, domain, age, httpOnly);
+}
+
+function removeCookie(name) {
+    System.putCookie(name, null, null, null, 0, false);
+}
 function print(obj) {
     System.outputScript(obj);
 }
