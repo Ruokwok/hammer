@@ -52,6 +52,7 @@ public class Engine {
             engine.put("Request", request);
             engine.put("Files", new EngineFiles(this));
             engine.put("Date", new EngineDate(this));
+            engine.put("Http", new EngineHttp());
             if (req != null) {
 //                engine.put("_PARAMS", hsr.getParameterMap());
                 engine.put("_GET", getParams(req.getQueryString()));
