@@ -98,4 +98,9 @@ public class EngineFile {
         return FileUtils.deleteQuietly(file);
     }
 
+    public String getName() {
+        if (exists()) return file.getName();
+        return null;
+    }
+
 }
