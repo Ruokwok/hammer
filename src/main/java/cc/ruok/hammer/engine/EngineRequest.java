@@ -82,4 +82,14 @@ public class EngineRequest {
         if (ua != null) return ua.isMobile();
         return false;
     }
+
+    public String getEngine() {
+        if (ua != null) return ua.getEngine().toString();
+        return null;
+    }
+
+    public String getEngineVersion() {
+        if (ua != null) return ua.getEngineVersion();
+        return null;
+    }
 }
