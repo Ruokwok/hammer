@@ -254,7 +254,9 @@ public class Engine {
 
     public void saveSessionData(Map<String, Object> map) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            session.setAttribute(entry.getKey(), entry.getValue());
+            if (entry.getValue() != null) {
+                session.setAttribute(entry.getKey(), entry.getValue());
+            }
         }
     }
 
