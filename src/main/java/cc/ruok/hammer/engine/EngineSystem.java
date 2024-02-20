@@ -87,6 +87,7 @@ public class EngineSystem {
         if (cookies == null) {
             cookies = new HashMap<>();
             Cookie[] _cookie = engine.getRequest().getCookies();
+            if (_cookie == null) return cookies;
             for (Cookie c : _cookie) {
                 EngineCookie cookie = new EngineCookie();
                 cookie.name = c.getName();
