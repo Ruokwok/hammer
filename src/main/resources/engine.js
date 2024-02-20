@@ -9,7 +9,7 @@ function removeCookie(name) {
 function print(obj) {
     System.outputScript(obj);
 }
-function echo(obj) {
+function echo(obj = '') {
     print(obj);
 }
 function include(filename) {
