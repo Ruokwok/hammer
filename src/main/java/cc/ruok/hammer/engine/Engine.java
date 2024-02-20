@@ -44,7 +44,7 @@ public class Engine {
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this.str = str;
         this.script = new Script(str, this);
-        this.request = EngineRequest.createEngineRequest(req);
+        this.request = new EngineRequest(req);
         this.writer = resp.getWriter();
         this.response = resp;
         this.webSite = webSite;

@@ -1,76 +1,85 @@
 package cc.ruok.hammer.engine;
 
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class EngineRequest {
+public class EngineRequest {
 
-    public static EngineRequest createEngineRequest(HttpServletRequest request) {
-        return new EngineRequest() {
-            @Override
-            public String getMethod() {
-                return request.getMethod();
-            }
+    private final HttpServletRequest request;
+    private final UserAgent ua;
 
-            @Override
-            public String getAddress() {
-                return request.getRemoteHost();
-            }
-
-            @Override
-            public String getPath() {
-                return request.getServletPath();
-            }
-
-            @Override
-            public int getPort() {
-                return request.getRemotePort();
-            }
-
-            @Override
-            public String getProtocol() {
-                return request.getProtocol();
-            }
-
-            @Override
-            public String getHeader(String key) {
-                return request.getHeader(key);
-            }
-
-            @Override
-            public String getDomain() {
-                return request.getHeader("Host");
-            }
-
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> map = new HashMap<>();
-                Enumeration<String> names = request.getHeaderNames();
-                while (names.hasMoreElements()) {
-                    String h = names.nextElement();
-                    map.put(h, request.getHeader(h));
-                }
-                return map;
-            }
-        };
+    public EngineRequest(HttpServletRequest request) {
+        this.request = request;
+        this.ua = UserAgentUtil.parse(request.getHeader("User-Agent"));
     }
 
-    public abstract String getMethod();
+    public String getMethod() {
+        return request.getMethod();
+    }
 
-    public abstract String getAddress();
 
-    public abstract String getPath();
+    public String getAddress() {
+        return request.getRemoteHost();
+    }
 
-    public abstract int getPort();
 
-    public abstract String getProtocol();
+    public String getPath() {
+        return request.getServletPath();
+    }
 
-    public abstract String getHeader(String key);
 
-    public abstract String getDomain();
+    public int getPort() {
+        return request.getRemotePort();
+    }
 
-    public abstract Map<String, String> getHeaders();
+
+    public String getProtocol() {
+        return request.getProtocol();
+    }
+
+
+    public String getHeader(String key) {
+        return request.getHeader(key);
+    }
+
+
+    public String getDomain() {
+        return request.getHeader("Host");
+    }
+
+
+    public Map<String, String> getHeaders() {
+        Map<String, String> map = new HashMap<>();
+        Enumeration<String> names = request.getHeaderNames();
+        while (names.hasMoreElements()) {
+            String h = names.nextElement();
+            map.put(h, request.getHeader(h));
+        }
+        return map;
+    }
+
+    public String getBrowser() {
+        if (ua != null) return ua.getBrowser().toString();
+        return null;
+    }
+
+    public String getVersion() {
+        if (ua != null) return ua.getVersion();
+        return null;
+    }
+
+    public String getOS() {
+        if (ua != null) return ua.getOs().toString();
+        return null;
+    }
+
+    public boolean isMobile() {
+        if (ua != null) return ua.isMobile();
+        return false;
+    }
 }

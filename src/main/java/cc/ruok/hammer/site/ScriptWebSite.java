@@ -36,7 +36,6 @@ public class ScriptWebSite extends WebSite {
                 resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
             }
             if (file.getName().endsWith(".hsp")) {
-                EngineRequest er = EngineRequest.createEngineRequest(req);
                 String script = FileUtils.readFileToString(file, "utf-8");
                 Engine e = new Engine(script, req, resp, this);
                 long end = System.currentTimeMillis();
