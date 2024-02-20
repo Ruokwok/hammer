@@ -40,3 +40,6 @@ function setStatus(code = 200) {
 function md5(str) {
     return Digest.md5(str);
 }
+function database(url, username, password) {
+    return Database.connect(url, username, password);
+}
