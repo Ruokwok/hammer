@@ -22,7 +22,7 @@ function include(filename) {
     }
 }
 function getFile(filename) {
-    return Files.getFile(filename);
+    return System.getFile(filename);
 }
 const _SESSION = {};
 function sessionStart(sec = 3600) {

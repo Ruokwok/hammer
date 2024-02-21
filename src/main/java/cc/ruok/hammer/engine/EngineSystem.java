@@ -3,6 +3,7 @@ package cc.ruok.hammer.engine;
 import cc.ruok.hammer.Logger;
 import jakarta.servlet.http.Cookie;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,5 +109,9 @@ public class EngineSystem {
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(httpOnly);
         engine.getResponse().addCookie(cookie);
+    }
+
+    public EngineFile getFile(String filename) {
+        return new EngineFile(new File(engine.getWebSite().getPath() + "/" + filename), engine);
     }
 }

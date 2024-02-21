@@ -3,16 +3,10 @@ package cc.ruok.hammer.engine;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.site.ScriptWebSite;
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.server.Request;
-import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
@@ -53,7 +47,6 @@ public class Engine {
         try {
             engine.put("System", new EngineSystem(this));
             engine.put("Request", request);
-            engine.put("Files", new EngineFiles(this));
             engine.put("Date", new EngineDate(this));
             engine.put("Http", new EngineHttp());
             engine.put("Digest", new EngineDigester());
