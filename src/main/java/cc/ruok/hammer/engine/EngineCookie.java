@@ -2,12 +2,12 @@ package cc.ruok.hammer.engine;
 
 public class EngineCookie {
 
-    protected String name;
-    protected String value;
-    protected String path;
-    protected String domain;
-    protected int age;
-    protected boolean httpOnly;
+    public String name;
+    public String value;
+    public String path;
+    public String domain;
+    public int age;
+    public boolean httpOnly;
 
     public String getName() {
         return name;

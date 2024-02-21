@@ -43,3 +43,6 @@ function md5(str) {
 function database(url, username, password) {
     return Database.connect(url, username, password);
 }
+function curl(url) {
+    return Http.get(url).body();
+}
