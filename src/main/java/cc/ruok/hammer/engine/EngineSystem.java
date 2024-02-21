@@ -1,13 +1,11 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
+import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.Cookie;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EngineSystem {
 
@@ -43,7 +41,13 @@ public class EngineSystem {
         if (obj == null) {
             engine.outputScript(null);
         } else {
-            engine.outputScript(obj.toString());
+            if (obj instanceof String[] && ((String[]) obj).length == 1) {
+                engine.outputScript(((String[]) obj)[0]);
+            } else if (obj instanceof Collection<?> || obj instanceof Map<?,?> || obj instanceof Object[]) {
+                engine.outputScript(JSONUtil.toJsonStr(obj));
+            } else {
+                engine.outputScript(obj.toString());
+            }
         }
     }
 
