@@ -25,7 +25,7 @@ public class EngineFile {
     }
 
     public String getPath() {
-        return FileUtil.getAbsolutePath(file);
+        return FileUtil.getAbsolutePath(file.getParentFile());
     }
 
     public boolean exists() {
@@ -101,6 +101,11 @@ public class EngineFile {
     public String getName() {
         if (exists()) return file.getName();
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return FileUtil.getAbsolutePath(file);
     }
 
 }

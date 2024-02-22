@@ -51,6 +51,7 @@ public class Engine {
             engine.put("Http", new EngineHttp());
             engine.put("Digest", new EngineDigester());
             engine.put("Database", database);
+            engine.put("Codec", new EngineCodec());
             if (req != null) {
 //                engine.put("_PARAMS", hsr.getParameterMap());
                 engine.put("_GET", getParams(req.getQueryString()));
