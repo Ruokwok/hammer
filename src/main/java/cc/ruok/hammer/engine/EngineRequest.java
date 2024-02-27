@@ -68,7 +68,7 @@ public class EngineRequest {
         return null;
     }
 
-    public String getVersion() {
+    public String getBrowserVersion() {
         if (ua != null) return ua.getVersion();
         return null;
     }
