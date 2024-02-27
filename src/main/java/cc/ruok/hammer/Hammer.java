@@ -19,10 +19,10 @@ public class Hammer {
         try {
             init();
             Engine.loadBaseJs();
-            WebServer.loadAll();
-            new ConfigWatchdog(new File("config")).start();
             WebServer server = WebServer.getInstance();
             server.start();
+            WebServer.loadAll();
+            new ConfigWatchdog(new File("config")).start();
         } catch (Exception e) {
             Logger.logException(e);
         }
@@ -33,6 +33,10 @@ public class Hammer {
             CONFIG_PATH.mkdir();
             InputStream yml = Hammer.class.getResourceAsStream("/default.yml");
             Files.copy(yml, new File(CONFIG_PATH + "/default.yml").toPath());
+        }
+        File ssl = new File("ssl");
+        if (!ssl.exists()) {
+            ssl.mkdir();
         }
     }
 

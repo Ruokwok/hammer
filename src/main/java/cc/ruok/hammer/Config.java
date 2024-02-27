@@ -12,6 +12,8 @@ public class Config {
     public List<String> domain;
     public HashMap<Integer, String> error_page;
     public HashMap<String, Boolean> permission;
+    public String ssl_keystore;
+    public String ssl_password;
 
     @Override
     public Config clone() {
@@ -21,6 +23,8 @@ public class Config {
         config.type = type;
         config.domain = new ArrayList<>(domain);
         config.permission = new HashMap<>(permission);
+        config.ssl_keystore = ssl_keystore;
+        config.ssl_password = ssl_password;
         if (error_page != null) config.error_page = new HashMap<>(error_page);
         return config;
     }

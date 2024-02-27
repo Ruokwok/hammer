@@ -7,11 +7,16 @@ import cn.hutool.core.io.FileUtil;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class WebServer {
 
@@ -19,6 +24,9 @@ public class WebServer {
     private Server server;
     private final HashMap<String, WebSite> sites = new HashMap<>();
     private final HashMap<String, WebSite> fileSiteMap = new HashMap<>();
+    private final HashMap<String, String> ssl = new HashMap<>();
+
+    private ServerConnector connector;
 
     private WebServer() {
     }
@@ -33,24 +41,32 @@ public class WebServer {
         context.addServlet(WebServlet.class, "/");
         server = new Server(80);
         server.setHandler(context);
-
-//        if (serverConfig.ssl) {
-//            HttpConfiguration config = new HttpConfiguration();
-//            config.setSecureScheme("https");
-//            config.setSecurePort(443);
-//            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-//            sslContextFactory.setKeyStorePath("ssl/keystore.jks");
-//            sslContextFactory.setKeyStorePassword(serverConfig.keystore_password);
-//            sslContextFactory.setKeyManagerPassword(serverConfig.keystore_password);
-//            ServerConnector httpsConnector = new ServerConnector(server,
-//                    new SslConnectionFactory(sslContextFactory, "http/1.1"),
-//                    new HttpConnectionFactory(config));
-//            httpsConnector.setPort(443);
-//            server.addConnector(httpsConnector);
-//        }
-
+        connector = new ServerConnector(server);
+        if (ssl.size() > 0) {
+            for (Map.Entry<String, String> entry : ssl.entrySet()) {
+                addSSL(entry.getKey(), entry.getValue());
+            }
+        }
+        connector.setPort(443);
+        server.addConnector(connector);
         server.start();
 //        server.join();
+    }
+
+    public void loadSSL(String keyFile, String password) {
+        try {
+            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+            sslContextFactory.setKeyStorePath("ssl/" + keyFile);
+            sslContextFactory.setKeyStorePassword(password);
+            sslContextFactory.setKeyManagerPassword(password);
+            connector.addConnectionFactory(new SslConnectionFactory(sslContextFactory, "http/1.1"));
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+    }
+
+    public void addSSL(String keyFile, String password) {
+        ssl.put(keyFile, password);
     }
 
     public static void load(File yml) throws IOException {
@@ -59,6 +75,9 @@ public class WebServer {
         Config config = reader.read(Config.class);
         reader.close();
         WebSite site = null;
+        if (config.ssl_keystore != null) {
+            WebServer.getInstance().addSSL(config.ssl_keystore, config.ssl_password);
+        }
         if (config.type.equalsIgnoreCase("static")) {
             site = new StaticWebSite(config);
         } else if (config.type.equalsIgnoreCase("script")) {
