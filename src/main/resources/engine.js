@@ -13,6 +13,7 @@ function echo(obj = '') {
     print(obj);
 }
 function include(filename) {
+    if (filename == undefined) return;
     var file = getFile(filename);
     if (file.exists()) {
         var script = System.include(file.read(), file.getPath());
