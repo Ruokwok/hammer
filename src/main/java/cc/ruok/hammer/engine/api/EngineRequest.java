@@ -49,7 +49,11 @@ public class EngineRequest {
 
 
     public String getDomain() {
-        return request.getHeader("Host");
+        String host = request.getHeader("Host");
+        if (host.contains("]:")) host = host.substring(0, host.indexOf("]:") + 1);
+        int i = host.indexOf(":");
+        if (i >= 0 && !host.contains("[")) host = host.substring(0, i);
+        return host;
     }
 
 
