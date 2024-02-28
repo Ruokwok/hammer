@@ -1,11 +1,10 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
 
 import cn.hutool.core.codec.Base32;
 import cn.hutool.core.codec.Base62;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.HexUtil;
-import org.apache.commons.io.IOUtils;
 
 public class EngineCodec {
 

@@ -1,6 +1,8 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
 
 import cc.ruok.hammer.Logger;
+import cc.ruok.hammer.engine.Engine;
+import cc.ruok.hammer.engine.Script;
 import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.Cookie;
 

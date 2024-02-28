@@ -1,4 +1,6 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
+
+import cc.ruok.hammer.engine.Engine;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;

@@ -1,5 +1,6 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
 
+import cc.ruok.hammer.engine.Engine;
 import cn.hutool.core.io.FileUtil;
 import org.apache.commons.io.FileUtils;
 

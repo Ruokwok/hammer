@@ -1,4 +1,4 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
 
 public class EngineException extends Exception {
 

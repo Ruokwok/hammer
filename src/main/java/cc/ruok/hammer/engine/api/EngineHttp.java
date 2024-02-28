@@ -1,8 +1,7 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;

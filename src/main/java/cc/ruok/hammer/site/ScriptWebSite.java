@@ -4,7 +4,6 @@ import cc.ruok.hammer.Config;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.WebServlet;
 import cc.ruok.hammer.engine.Engine;
-import cc.ruok.hammer.engine.EngineRequest;
 import cc.ruok.hammer.error.Http403Exception;
 import cc.ruok.hammer.error.Http404Exception;
 import cc.ruok.hammer.error.Http500Exception;

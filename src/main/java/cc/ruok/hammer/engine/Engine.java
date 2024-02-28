@@ -1,6 +1,7 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
+import cc.ruok.hammer.engine.api.*;
 import cc.ruok.hammer.site.ScriptWebSite;
 import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import jakarta.servlet.http.HttpServletRequest;
@@ -287,14 +288,14 @@ public class Engine {
         outputPool.put(key, value);
     }
 
-    protected void outputStatic(String key) {
+    public void outputStatic(String key) {
         String value = outputPool.get(key);
         if (value != null) {
             writer.print(value);
         }
     }
 
-    protected void outputScript(String str) {
+    public void outputScript(String str) {
         writer.print(str);
     }
 

@@ -1,8 +1,6 @@
-package cc.ruok.hammer.engine;
+package cc.ruok.hammer.engine.api;
 
 import cn.hutool.crypto.digest.DigestUtil;
-
-import java.io.File;
 
 public class EngineDigester {
 
