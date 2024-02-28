@@ -54,11 +54,12 @@ public class EngineSystem {
     }
 
     public String include(String str, String file) throws EngineException {
-        Script script = new Script(str, engine);
         if (includeList.contains(file)) {
             throw new EngineException("prohibit circular include.");
         } else {
             includeList.add(file);
+            if (file.endsWith(".js")) return str;
+            Script script = new Script(str, engine);
             return script.getCompile();
         }
     }
