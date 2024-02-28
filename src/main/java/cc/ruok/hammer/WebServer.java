@@ -39,7 +39,7 @@ public class WebServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         context.addServlet(WebServlet.class, "/");
-        server = new Server(80);
+        server = new Server(Hammer.httpPort);
         server.setHandler(context);
         connector = new ServerConnector(server);
         if (ssl.size() > 0) {
@@ -47,7 +47,7 @@ public class WebServer {
                 addSSL(entry.getKey(), entry.getValue());
             }
         }
-        connector.setPort(443);
+        connector.setPort(Hammer.httpsPort);
         server.addConnector(connector);
         server.start();
 //        server.join();

@@ -17,6 +17,9 @@ public class WebServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String host = req.getHeader("Host");
+        if (host.contains("]:")) host = host.substring(0, host.indexOf("]:") + 1);
+        int i = host.indexOf(":");
+        if (i >= 0 && !host.contains("[")) host = host.substring(0, i);
         WebSite site = server.getWebSite(host);
         if (site == null) {
             resp.getWriter().println(WebSite.notSite(host));
