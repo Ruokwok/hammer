@@ -166,8 +166,7 @@ public class Engine {
 //        }
     }
 
-    public String execute() {
-        String sb = "";
+    public void execute() {
         try {
             String compile = script.getCompile();
             engine.eval(compile);
@@ -177,7 +176,6 @@ public class Engine {
             error(e);
         }
         System.gc();
-        return sb;
     }
 
     public void error(ScriptException e) {
@@ -291,7 +289,7 @@ public class Engine {
     public void outputStatic(String key) {
         String value = outputPool.get(key);
         if (value != null) {
-            writer.print(value);
+            outputScript(value);
         }
     }
 

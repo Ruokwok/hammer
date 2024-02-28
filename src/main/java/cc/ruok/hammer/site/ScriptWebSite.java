@@ -38,7 +38,7 @@ public class ScriptWebSite extends WebSite {
                 String script = FileUtils.readFileToString(file, "utf-8");
                 Engine e = new Engine(script, req, resp, this);
                 long end = System.currentTimeMillis();
-                resp.getWriter().println(e.execute());
+                e.execute();
                 Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
                         req.getRemoteAddr() +
                         " - " + req.getRequestURI() + "(" + (end - start) + "ms)");
