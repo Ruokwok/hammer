@@ -70,7 +70,6 @@ public class WebServer {
         } else {
             KeyStore ksMerged = KeyStore.getInstance("JKS");
             ksMerged.load(null, null);
-            List<KeyStore> list = new ArrayList<>();
             for (Map.Entry<String, SslKey> entry : sniMap.entrySet()) {
                 KeyStore ks = KeyStore.getInstance("JKS");
                 FileInputStream fis = new FileInputStream("ssl/" + entry.getValue().getFileName());
@@ -95,6 +94,7 @@ public class WebServer {
             fos.close();
             SslKey sslKey = new SslKey("merged.jks", "223344");
             sslKey.isMerged = true;
+            Logger.info("Merging multiple SSL keystore");
             return sslKey;
         }
         return null;
