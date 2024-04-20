@@ -56,6 +56,10 @@ public class EngineRequest {
         return host;
     }
 
+    public boolean isHttps() {
+        return request.getRequestURL().toString().startsWith("https://");
+    }
+
 
     public Map<String, String> getHeaders() {
         Map<String, String> map = new HashMap<>();

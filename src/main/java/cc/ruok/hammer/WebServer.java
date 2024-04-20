@@ -9,14 +9,10 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.util.*;
 
 public class WebServer {
 
@@ -24,7 +20,7 @@ public class WebServer {
     private Server server;
     private final HashMap<String, WebSite> sites = new HashMap<>();
     private final HashMap<String, WebSite> fileSiteMap = new HashMap<>();
-    private final HashMap<String, String> ssl = new HashMap<>();
+    private final HashMap<String, SslKey> sniMap = new HashMap<>();
 
     private ServerConnector connector;
 
@@ -39,34 +35,73 @@ public class WebServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         context.addServlet(WebServlet.class, "/");
-        server = new Server(Hammer.httpPort);
+        server = new Server(80);
         server.setHandler(context);
-        connector = new ServerConnector(server);
-        if (ssl.size() > 0) {
-            for (Map.Entry<String, String> entry : ssl.entrySet()) {
-                addSSL(entry.getKey(), entry.getValue());
-            }
+        SslContextFactory.Server factory = new SslContextFactory.Server();
+        connector = new ServerConnector(server, factory);
+        SslKey sslKey = margeSSL();
+        if (sslKey != null) {
+            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+            sslContextFactory.setKeyStorePath(sslKey.isMerged ? sslKey.getFileName() : "ssl/" + sslKey.getFileName());
+            sslContextFactory.setKeyStorePassword(sslKey.getPassword());
+            sslContextFactory.setKeyManagerPassword(sslKey.getPassword());
+            connector.addConnectionFactory(new SslConnectionFactory(sslContextFactory, "http/1.1"));
         }
-        connector.setPort(Hammer.httpsPort);
+        connector.setPort(443);
         server.addConnector(connector);
         server.start();
-//        server.join();
     }
 
     public void loadSSL(String keyFile, String password) {
         try {
-            SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-            sslContextFactory.setKeyStorePath("ssl/" + keyFile);
-            sslContextFactory.setKeyStorePassword(password);
-            sslContextFactory.setKeyManagerPassword(password);
-            connector.addConnectionFactory(new SslConnectionFactory(sslContextFactory, "http/1.1"));
+            SslKey sslKey = new SslKey(keyFile, password);
+            sniMap.put(keyFile, sslKey);
         } catch (Exception e) {
             Logger.logException(e);
         }
     }
 
+    private SslKey margeSSL() throws Exception {
+        if (sniMap.size() == 0) return null;
+        if (sniMap.size() == 1) {
+            for (Map.Entry<String, SslKey> entry : sniMap.entrySet()) {
+                return entry.getValue();
+            }
+        } else {
+            KeyStore ksMerged = KeyStore.getInstance("JKS");
+            ksMerged.load(null, null);
+            List<KeyStore> list = new ArrayList<>();
+            for (Map.Entry<String, SslKey> entry : sniMap.entrySet()) {
+                KeyStore ks = KeyStore.getInstance("JKS");
+                FileInputStream fis = new FileInputStream("ssl/" + entry.getValue().getFileName());
+                ks.load(fis, entry.getValue().getPassword().toCharArray());
+                fis.close();
+
+                Enumeration<String> aliases1 = ks.aliases();
+                while (aliases1.hasMoreElements()) {
+                    String alias = aliases1.nextElement();
+                    if (ks.isKeyEntry(alias)) {
+                        Key key = ks.getKey(alias, entry.getValue().getPassword().toCharArray());
+                        java.security.cert.Certificate[] chain = ks.getCertificateChain(alias);
+                        ksMerged.setKeyEntry(alias, key, "223344".toCharArray(), chain);
+                    } else {
+                        Certificate cert = ks.getCertificate(alias);
+                        ksMerged.setCertificateEntry(alias, cert);
+                    }
+                }
+            }
+            FileOutputStream fos = new FileOutputStream("merged.jks");
+            ksMerged.store(fos, "223344".toCharArray());
+            fos.close();
+            SslKey sslKey = new SslKey("merged.jks", "223344");
+            sslKey.isMerged = true;
+            return sslKey;
+        }
+        return null;
+    }
+
     public void addSSL(String keyFile, String password) {
-        ssl.put(keyFile, password);
+        sniMap.put(keyFile, new SslKey(keyFile, password));
     }
 
     public static void load(File yml) throws IOException {
@@ -116,5 +151,28 @@ public class WebServer {
 
     public WebSite getWebSite(String domain) {
         return sites.get(domain);
+    }
+
+    public class SslKey {
+        private boolean isMerged = false;
+        private String file;
+        private String password;
+
+        public SslKey(String file, String password) {
+            this.file = file;
+            this.password = password;
+        }
+
+        protected String getFileName() {
+            return file;
+        }
+
+        protected String getPassword() {
+            return password;
+        }
+
+        protected boolean isMerged() {
+            return isMerged;
+        }
     }
 }

@@ -21,9 +21,9 @@ public class Hammer {
         try {
             init(args);
             Engine.loadBaseJs();
+            WebServer.loadAll();
             WebServer server = WebServer.getInstance();
             server.start();
-            WebServer.loadAll();
             new ConfigWatchdog(new File("config")).start();
         } catch (Exception e) {
             Logger.logException(e);
