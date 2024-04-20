@@ -47,3 +47,6 @@ function database(url, username, password) {
 function curl(url) {
     return Http.get(url).body();
 }
+function sleep(time) {
+    System.sleep(time);
+}

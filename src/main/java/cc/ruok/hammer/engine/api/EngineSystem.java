@@ -121,4 +121,12 @@ public class EngineSystem {
     public EngineFile getFile(String filename) {
         return new EngineFile(new File(engine.getWebSite().getPath() + "/" + filename), engine);
     }
+
+    public void sleep(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            Logger.logException(e);
+        }
+    }
 }
