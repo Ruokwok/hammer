@@ -5,11 +5,14 @@ import cc.ruok.hammer.site.StaticWebSite;
 import cc.ruok.hammer.site.WebSite;
 import cn.hutool.core.io.FileUtil;
 import com.esotericsoftware.yamlbeans.YamlReader;
+import jakarta.servlet.MultipartConfigElement;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.*;
@@ -34,7 +37,12 @@ public class WebServer {
     public void start() throws Exception {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
-        context.addServlet(WebServlet.class, "/");
+        String temp = Paths.get("temp").toFile().getAbsolutePath();
+        MultipartConfigElement multipartConfigElement = new MultipartConfigElement(temp, 2048 * 1024, 20971520, 0);
+        ServletHolder servletHolder = new ServletHolder(WebServlet.class);
+        servletHolder.getRegistration().setMultipartConfig(multipartConfigElement);
+        context.addServlet(servletHolder, "/");
+
         server = new Server(80);
         server.setHandler(context);
         SslContextFactory.Server factory = new SslContextFactory.Server();

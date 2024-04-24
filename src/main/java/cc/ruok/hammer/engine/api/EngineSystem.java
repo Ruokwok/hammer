@@ -4,9 +4,15 @@ import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.Script;
 import cn.hutool.json.JSONUtil;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.Part;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 public class EngineSystem {
@@ -14,6 +20,8 @@ public class EngineSystem {
     private final Engine engine;
     private final List<String> includeList = new ArrayList<>();
     private Map<String, EngineCookie> cookies;
+    private ArrayList<EngineFile> uploads;
+    private File partsDir;
 
     public EngineSystem(Engine engine) {
         this.engine = engine;
@@ -127,6 +135,37 @@ public class EngineSystem {
             Thread.sleep(time);
         } catch (InterruptedException e) {
             Logger.logException(e);
+        }
+    }
+
+    public ArrayList<EngineFile> getUploadParts() throws ServletException, IOException {
+        if (uploads != null) return uploads;
+        if (engine.getRequest().getContentType() == null) return null;
+        if (!engine.getRequest().getContentType().startsWith("multipart/form-data;")) return null;
+        Collection<Part> parts = engine.getRequest().getParts();
+        if (parts.size() == 0) return null;
+        ArrayList<EngineFile> list = new ArrayList<>();
+        String uuid = UUID.randomUUID().toString();
+        for (Part part : parts) {
+            File file = new File("temp/" + uuid + "/" + part.getSubmittedFileName());
+            partsDir = new File("temp/" + uuid);
+            partsDir.mkdir();
+            FileOutputStream stream = new FileOutputStream(file);
+            IOUtils.write(part.getInputStream().readAllBytes(), stream);
+            stream.close();
+            list.add(new EngineFile(file, engine));
+        }
+        uploads = list;
+        return list;
+    }
+
+    public void removeParts() {
+        if (partsDir != null) {
+            try {
+                FileUtils.forceDelete(partsDir);
+            } catch (IOException e) {
+                Logger.logException(e);
+            }
         }
     }
 }

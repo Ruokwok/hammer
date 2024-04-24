@@ -50,3 +50,6 @@ function curl(url) {
 function sleep(time) {
     System.sleep(time);
 }
+function getUploadFiles() {
+    return System.getUploadParts();
+}

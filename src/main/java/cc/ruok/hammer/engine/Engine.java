@@ -270,6 +270,8 @@ public class Engine {
     }
 
     private String getPostData(HttpServletRequest request) {
+        if (request.getContentType() == null) return null;
+        if (request.getContentType().startsWith("multipart/form-data;")) return null;
         StringBuffer data = new StringBuffer();
         String line = null;
         BufferedReader reader = null;
