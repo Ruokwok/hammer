@@ -18,3 +18,4 @@ Hammer是一款Java实现的基于Jetty的Web服务器，通过Graal.js引擎支
 - [数据库](docs/database.md)
 - [日期与时间](docs/date.md)
 - [数据摘要算法](docs/digester.md)
+- [编解码器](docs/codec.md)
