@@ -138,7 +138,7 @@ public class EngineSystem {
         }
     }
 
-    public ArrayList<EngineFile> getUploadParts() throws ServletException, IOException {
+    public ArrayList<EngineFile> getUploadParts(String name) throws ServletException, IOException {
         if (uploads != null) return uploads;
         if (engine.getRequest().getContentType() == null) return null;
         if (!engine.getRequest().getContentType().startsWith("multipart/form-data;")) return null;
@@ -147,13 +147,15 @@ public class EngineSystem {
         ArrayList<EngineFile> list = new ArrayList<>();
         String uuid = UUID.randomUUID().toString();
         for (Part part : parts) {
-            File file = new File("temp/" + uuid + "/" + part.getSubmittedFileName());
-            partsDir = new File("temp/" + uuid);
-            partsDir.mkdir();
-            FileOutputStream stream = new FileOutputStream(file);
-            IOUtils.write(part.getInputStream().readAllBytes(), stream);
-            stream.close();
-            list.add(new EngineFile(file, engine));
+            if (name == null || name.equals(part.getName())) {
+                File file = new File("temp/" + uuid + "/" + part.getSubmittedFileName());
+                partsDir = new File("temp/" + uuid);
+                partsDir.mkdir();
+                FileOutputStream stream = new FileOutputStream(file);
+                IOUtils.write(part.getInputStream().readAllBytes(), stream);
+                stream.close();
+                list.add(new EngineFile(file, engine));
+            }
         }
         uploads = list;
         return list;

@@ -10,6 +10,7 @@
 - [添加COOKIE](#添加cookie)
 - [计算MD5](#计算md5)
 - [暂停执行](#暂停执行)
+- [读取上传的文件](#读取上传的文件)
 
 ### 输出内容
 `print(str)`
@@ -124,3 +125,36 @@
 | 名称   | 说明       | 类型   |
 |------|----------|------|
 | time | 时长(单位毫秒) | long |
+
+### 读取上传的文件
+`getUploadFiles(name)`
+
+读取前端浏览器上传的文件
+
+#### 参数
+
+| 名称   | 说明   | 类型     | 必填  |
+|------|------|--------|-----|
+| name | 文件名称 | String | 否   |
+
+#### 返回值
+- 类型: **List<File>**
+- 元素类型为[File](file.md)的列表
+- 返回值的File对象为临时文件，将在脚本执行结束时销毁。
+
+#### 示例
+前端
+```html
+<form action="/upload.hsp" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" multiple>
+    <input type="submit" value="上传">
+</form>
+```
+HSP脚本
+```
+    var list = getUploadFiles("files");     //读取上传的文件列表
+    for(var key in list) {                  //遍历list
+        //保存文件
+        list[key].move("upload_file/" + list[key].getName());
+    }
+```
