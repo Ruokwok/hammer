@@ -12,8 +12,10 @@ public class EngineFile {
     protected final File file;
     private final boolean read;
     private final boolean write;
+    private final Engine engine;
 
     public EngineFile(File file, Engine engine) {
+        this.engine = engine;
         this.file = file;
         String path = FileUtil.getAbsolutePath(engine.getWebSite().getPath()) + File.separator;
         if (FileUtil.getAbsolutePath(file).startsWith(path)) {
@@ -102,6 +104,26 @@ public class EngineFile {
     public String getName() {
         if (exists()) return file.getName();
         return null;
+    }
+
+    public void move(String path) throws EngineException, IOException {
+        EngineFile ef = new EngineFile(new File(engine.getWebSite().getPath() + "/" + path), engine);
+        if (!ef.write) throw new EngineException("no permission.");
+        if (file.isFile()) {
+            FileUtils.moveFile(file, ef.file);
+        } else {
+            FileUtils.moveDirectory(file, ef.file);
+        }
+    }
+
+    public void copy(String path) throws EngineException, IOException {
+        EngineFile ef = new EngineFile(new File(engine.getWebSite().getPath() + "/" + path), engine);
+        if (!ef.write) throw new EngineException("no permission.");
+        if (file.isFile()) {
+            FileUtils.copyFile(file, ef.file);
+        } else {
+            FileUtils.copyDirectory(file, ef.file);
+        }
     }
 
     @Override
