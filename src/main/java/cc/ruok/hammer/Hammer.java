@@ -11,14 +11,14 @@ import java.nio.file.Files;
 public class Hammer {
 
     public static final File CONFIG_PATH = new File("config");
-    public static int httpPort = 80;
-    public static int httpsPort = 443;
+    public static HammerConfig config;
 
     public static void main(String[] args) {
         System.setProperty("polyglot.js.nashorn-compat", "true");
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
         new ScriptEngineManager().getEngineByName("graal.js");
         try {
+            config = HammerConfig.load();
             init(args);
             Engine.loadBaseJs();
             WebServer.loadAll();
@@ -32,8 +32,8 @@ public class Hammer {
 
     public static void init(String[] args) throws IOException {
         for (String param : args) {
-            if (param.startsWith("--httpPort=")) httpPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
-            if (param.startsWith("--httpsPort=")) httpsPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
+            if (param.startsWith("--httpPort=")) config.httpPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
+            if (param.startsWith("--httpsPort=")) config.httpsPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
         }
         if (!CONFIG_PATH.exists()) {
             CONFIG_PATH.mkdir();

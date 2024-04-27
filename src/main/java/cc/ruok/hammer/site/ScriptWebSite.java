@@ -1,6 +1,7 @@
 package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.Config;
+import cc.ruok.hammer.Hammer;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.WebServlet;
 import cc.ruok.hammer.engine.Engine;
@@ -34,7 +35,8 @@ public class ScriptWebSite extends WebSite {
             if (type.equals("application/octet-stream")) {
                 resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
             }
-            if (file.getName().endsWith(".hsp")) {
+            String extensions = getExtensions(file.getName());
+            if (Hammer.config.scriptFileTypes.contains(extensions)) {
                 String script = FileUtils.readFileToString(file, "utf-8");
                 Engine e = new Engine(script, req, resp, this);
                 long end = System.currentTimeMillis();
@@ -81,5 +83,12 @@ public class ScriptWebSite extends WebSite {
             return page;
         }
         return file;
+    }
+
+    private String getExtensions(String filename) {
+        //TODO 此方法待完善
+        if (!filename.contains(".")) return null;
+        String[] split = filename.split("\\.");
+        return split[split.length - 1];
     }
 }

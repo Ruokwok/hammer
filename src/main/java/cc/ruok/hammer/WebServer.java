@@ -43,7 +43,7 @@ public class WebServer {
         servletHolder.getRegistration().setMultipartConfig(multipartConfigElement);
         context.addServlet(servletHolder, "/");
 
-        server = new Server(80);
+        server = new Server(Hammer.config.httpPort);
         server.setHandler(context);
         SslContextFactory.Server factory = new SslContextFactory.Server();
         connector = new ServerConnector(server, factory);
@@ -55,7 +55,7 @@ public class WebServer {
             sslContextFactory.setKeyManagerPassword(sslKey.getPassword());
             connector.addConnectionFactory(new SslConnectionFactory(sslContextFactory, "http/1.1"));
         }
-        connector.setPort(443);
+        connector.setPort(Hammer.config.httpsPort);
         server.addConnector(connector);
         server.start();
     }
