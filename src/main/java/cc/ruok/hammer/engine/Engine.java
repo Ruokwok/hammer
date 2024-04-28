@@ -3,11 +3,11 @@ package cc.ruok.hammer.engine;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.api.*;
 import cc.ruok.hammer.site.ScriptWebSite;
-import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
+import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
@@ -23,8 +23,7 @@ public class Engine {
     private String str;
     private Script script;
     private Map<String, String> outputPool = new HashMap<>();
-    private ScriptEngineManager manager = new ScriptEngineManager();
-    private ScriptEngine engine = GraalJSScriptEngine.create();
+    private Context engine;
     private EngineRequest request;
     private HttpServletRequest req;
     private static String baseJs;
@@ -46,22 +45,20 @@ public class Engine {
         this.req = req;
         this.session = req.getSession();
         try {
-            engine.put("System", new EngineSystem(this));
-            engine.put("Request", request);
-            engine.put("Date", new EngineDate(this));
-            engine.put("Http", new EngineHttp());
-            engine.put("Digest", new EngineDigester());
-            engine.put("Database", database);
-            engine.put("Codec", new EngineCodec());
+            engine = Context.newBuilder("js").allowAllAccess(true).build();
+            engine.getBindings("js").putMember("System", new EngineSystem(this));
+            engine.getBindings("js").putMember("Request", request);
+            engine.getBindings("js").putMember("Date", new EngineDate(this));
+            engine.getBindings("js").putMember("Http", new EngineHttp());
+            engine.getBindings("js").putMember("Digest", new EngineDigester());
+            engine.getBindings("js").putMember("Database", database);
+            engine.getBindings("js").putMember("Codec", new EngineCodec());
             if (req != null) {
-//                engine.put("_PARAMS", hsr.getParameterMap());
-                engine.put("_GET", getParams(req.getQueryString()));
-                engine.put("_POST", getParams(getPostData(req)));
-
-//                engine.put("_POST", null);
+                engine.getBindings("js").putMember("_GET", getParams(req.getQueryString()));
+                engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
             }
-            engine.eval(baseJs);
-        } catch (ScriptException e) {
+            engine.eval("js", baseJs);
+        } catch (Exception e) {
             Logger.logException(e);
         }
     }
@@ -169,24 +166,20 @@ public class Engine {
     public void execute() {
         try {
             String compile = script.getCompile();
-            engine.eval(compile);
-            engine.eval(finishJs);
+            engine.eval("js", compile);
+            engine.eval("js", finishJs);
             database.closeAll();
-        } catch (ScriptException e) {
+        } catch (PolyglotException e) {
             error(e);
         }
         System.gc();
     }
 
-    public void error(ScriptException e) {
-        Throwable cause = e.getCause();
-        StringBuilder msg = new StringBuilder(cause.getMessage().replaceAll("System\\.output\\(\\);", ""));
+    public void error(PolyglotException e) {
+        StringBuilder msg = new StringBuilder(e.getMessage().replaceAll("System\\.output\\('........'\\);", ""));
         int line = 0;
-        if (cause instanceof PolyglotException) {
-            PolyglotException pe = (PolyglotException) cause;
-            SourceSection location = pe.getSourceLocation();
-            if (location != null) line = location.getStartLine();
-        }
+        SourceSection location = e.getSourceLocation();
+        if (location != null) line = location.getStartLine();
         if (line == 0) {
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (StackTraceElement st : stackTrace) {
@@ -197,7 +190,7 @@ public class Engine {
             }
         }
         if (line == 0) {
-            StackTraceElement[] stackTrace = cause.getStackTrace();
+            StackTraceElement[] stackTrace = e.getStackTrace();
             for (StackTraceElement st : stackTrace) {
                 if (st.getClassName().equals("<js>") && st.getMethodName().equals(":program")) {
                     line = st.getLineNumber();
