@@ -11,7 +11,6 @@ import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
-import javax.script.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -204,20 +203,28 @@ public class Engine {
         outputScript("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
     }
 
-    public Map<String, String[]> getParams(String url) {
-        Map<String, String[]> map = new HashMap<>();
+    public Map<String, Object> getParams(String url) {
+        Map<String, Object> map = new HashMap<>();
         if (url == null) return map;
         String[] split = url.split("&");
         for (String s : split) {
             if (s.contains("=")) {
-                String[] _s = s.split("=");
-                if (map.containsKey(_s[0])) {
-                    String[] values = map.get(_s[0]);
-                    List<String> l = new ArrayList<>(Arrays.asList(values));
-                    l.add(_s[1]);
-                    map.put(_s[0], l.toArray(new String[values.length + 1]));
+                String[] pair = s.split("=", 2);
+                String key = pair[0];
+                String value = pair[1];
+                if (map.containsKey(key)) {
+                    Object currentValue = map.get(key);
+                    if (currentValue instanceof String) {
+                        List<String> list = new ArrayList<>(Arrays.asList((String) currentValue, value));
+                        map.put(key, list.toArray(new String[0]));
+                    } else if (currentValue instanceof String[]) {
+                        String[] values = (String[]) currentValue;
+                        List<String> list = new ArrayList<>(Arrays.asList(values));
+                        list.add(value);
+                        map.put(key, list.toArray(new String[0]));
+                    }
                 } else {
-                    map.put(_s[0], new String[]{_s[1]});
+                    map.put(key, value);
                 }
             }
         }
@@ -290,6 +297,10 @@ public class Engine {
 
     public void outputScript(String str) {
         writer.print(str);
+    }
+
+    public Context getContext() {
+        return engine;
     }
 
     public static void loadBaseJs() {
