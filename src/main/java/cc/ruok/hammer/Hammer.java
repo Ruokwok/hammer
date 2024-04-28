@@ -1,6 +1,7 @@
 package cc.ruok.hammer;
 
 import cc.ruok.hammer.engine.Engine;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,8 @@ public class Hammer {
         if (!ssl.exists()) {
             ssl.mkdir();
         }
+        File temp = new File("temp");
+        FileUtils.deleteDirectory(temp);
     }
 
 }
