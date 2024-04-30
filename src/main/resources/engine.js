@@ -52,3 +52,6 @@ function sleep(time) {
 function getUploadFiles(name = null) {
     return System.getUploadParts(name);
 }
+function addHeader(key, value) {
+    System.addHeader(key, value);
+}

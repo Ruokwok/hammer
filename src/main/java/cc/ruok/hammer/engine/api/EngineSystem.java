@@ -171,4 +171,8 @@ public class EngineSystem {
             }
         }
     }
+
+    public void addHeader(String key, String value) {
+        engine.getResponse().setHeader(key, value);
+    }
 }
