@@ -48,7 +48,7 @@ public class EngineFile {
         return file.length();
     }
 
-    public String read(String charset) throws EngineException {
+    public String readString(String charset) throws EngineException {
         if (!read) throw new EngineException("no permission.");
         try {
             return FileUtils.readFileToString(file, charset);
@@ -57,8 +57,18 @@ public class EngineFile {
         }
     }
 
-    public String read() throws EngineException {
-        return read("utf-8");
+    public String readString() throws EngineException {
+        return readString("utf-8");
+    }
+
+    public EngineData readData() throws EngineException {
+        if (!read) throw new EngineException("no permission.");
+        try {
+            byte[] bytes = FileUtils.readFileToByteArray(file);
+            return new EngineData(bytes, engine);
+        } catch (IOException e) {
+            throw new EngineException(e.getMessage());
+        }
     }
 
     public void write(String str, String charset) throws EngineException {
@@ -72,6 +82,15 @@ public class EngineFile {
 
     public void write(String str) throws EngineException {
         write(str, "utf8");
+    }
+
+    public void write(EngineData data) throws EngineException {
+        if (!write) throw new EngineException("no permission.");
+        try {
+            FileUtils.writeByteArrayToFile(file, data.getBytes());
+        } catch (IOException e) {
+            throw new EngineException(e.getMessage());
+        }
     }
 
     public void append(String str, String charset) throws EngineException {

@@ -58,3 +58,7 @@ function addHeader(key, value) {
 function importModule(name) {
     System.importObject(name);
 }
+function exit(code = 200) {
+    setStatus(200);
+    System.stop();
+}
