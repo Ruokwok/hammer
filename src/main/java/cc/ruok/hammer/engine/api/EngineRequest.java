@@ -14,6 +14,7 @@ public class EngineRequest {
     private final UserAgent ua;
 
     public EngineRequest(HttpServletRequest request) {
+        super();
         this.request = request;
         this.ua = UserAgentUtil.parse(request.getHeader("User-Agent"));
     }

@@ -1,11 +1,17 @@
 package cc.ruok.hammer.engine.api;
 
+import cc.ruok.hammer.engine.Engine;
+
 import java.sql.*;
 import java.util.*;
 
-public class EngineDatabase {
+public class EngineDatabase extends EngineAPI {
 
     private final List<DataBaseConnect> connects = new ArrayList<>();
+
+    public EngineDatabase(Engine engine) {
+        super(engine);
+    }
 
     public DataBaseConnect connect(String url, String username, String password) throws EngineException {
         try {
@@ -25,6 +31,11 @@ public class EngineDatabase {
             } catch (EngineException e) {
             }
         }
+    }
+
+    @Override
+    public String getVarName() {
+        return "Database";
     }
 
     public static class DataBaseConnect {

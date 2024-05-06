@@ -7,12 +7,15 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.Timer;
 
-public class EngineDate {
-
-    private final Engine engine;
+public class EngineDate extends EngineAPI {
 
     public EngineDate(Engine engine) {
-        this.engine = engine;
+        super(engine);
+    }
+
+    @Override
+    public String getVarName() {
+        return "Date";
     }
 
     public long getTime() {

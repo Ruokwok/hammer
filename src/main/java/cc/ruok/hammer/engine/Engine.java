@@ -14,6 +14,7 @@ import org.graalvm.polyglot.SourceSection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,7 +33,8 @@ public class Engine {
     private HttpServletResponse response;
     private ScriptWebSite webSite;
     private HttpSession session;
-    private EngineDatabase database = new EngineDatabase();
+    private EngineDatabase database = new EngineDatabase(this);
+    private static HashMap<String, Class<? extends EngineAPI>> apiMap = new HashMap<>();
 
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this.str = str;
@@ -45,13 +47,13 @@ public class Engine {
         this.session = req.getSession();
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
-            engine.getBindings("js").putMember("System", new EngineSystem(this));
             engine.getBindings("js").putMember("Request", request);
-            engine.getBindings("js").putMember("Date", new EngineDate(this));
-            engine.getBindings("js").putMember("Http", new EngineHttp());
-            engine.getBindings("js").putMember("Digest", new EngineDigester());
-            engine.getBindings("js").putMember("Database", database);
-            engine.getBindings("js").putMember("Codec", new EngineCodec());
+            putObject(new EngineSystem(this));
+            putObject(new EngineDate(this));
+            putObject(new EngineHttp(this));
+            putObject(new EngineDigest(this));
+            putObject(database);
+            putObject(new EngineCodec(this));
             if (req != null) {
                 engine.getBindings("js").putMember("_GET", getParams(req.getQueryString()));
                 engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
@@ -301,6 +303,26 @@ public class Engine {
 
     public Context getContext() {
         return engine;
+    }
+
+    public void putObject(String var) throws EngineException {
+        Class<? extends EngineAPI> apiClass = apiMap.get(var);
+        if (apiClass == null) throw new EngineException("Unknown API:" + var);
+        try {
+            Constructor<? extends EngineAPI> constructor = apiClass.getDeclaredConstructor(this.getClass());
+            EngineAPI api = constructor.newInstance(this);
+            engine.getBindings("js").putMember(var , api);
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+    }
+
+    public void putObject(EngineAPI api) {
+        engine.getBindings("js").putMember(api.getVarName() , api);
+    }
+
+    public static void registerAPI(String var, Class<? extends EngineAPI> apiClass) {
+        apiMap.put(var, apiClass);
     }
 
     public static void loadBaseJs() {

@@ -1,6 +1,7 @@
 package cc.ruok.hammer;
 
 import cc.ruok.hammer.engine.Engine;
+import cc.ruok.hammer.engine.api.EngineAPI;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class Hammer {
             config = HammerConfig.load();
             init(args);
             Engine.loadBaseJs();
+            EngineAPI.registerDefault();
             WebServer.loadAll();
             WebServer server = WebServer.getInstance();
             server.start();

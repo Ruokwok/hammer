@@ -1,12 +1,17 @@
 package cc.ruok.hammer.engine.api;
 
+import cc.ruok.hammer.engine.Engine;
 import cn.hutool.core.codec.Base32;
 import cn.hutool.core.codec.Base62;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.HexUtil;
 
-public class EngineCodec {
+public class EngineCodec extends EngineAPI {
+
+    public EngineCodec(Engine engine) {
+        super(engine);
+    }
 
     public String base32Encode(Object obj) {
         if (obj == null) return null;
@@ -55,4 +60,8 @@ public class EngineCodec {
         return HexUtil.decodeHexStr(hex);
     }
 
+    @Override
+    public String getVarName() {
+        return "Codec";
+    }
 }

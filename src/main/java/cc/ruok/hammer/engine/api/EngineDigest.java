@@ -1,8 +1,13 @@
 package cc.ruok.hammer.engine.api;
 
+import cc.ruok.hammer.engine.Engine;
 import cn.hutool.crypto.digest.DigestUtil;
 
-public class EngineDigester {
+public class EngineDigest extends EngineAPI {
+
+    public EngineDigest(Engine engine) {
+        super(engine);
+    }
 
     public String md5(Object obj) {
         if (obj instanceof EngineFile ef) {
@@ -59,4 +64,8 @@ public class EngineDigester {
         return DigestUtil.sha512Hex(obj.toString());
     }
 
+    @Override
+    public String getVarName() {
+        return "Digest";
+    }
 }

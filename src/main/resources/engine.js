@@ -55,3 +55,6 @@ function getUploadFiles(name = null) {
 function addHeader(key, value) {
     System.addHeader(key, value);
 }
+function importModule(name) {
+    System.importObject(name);
+}

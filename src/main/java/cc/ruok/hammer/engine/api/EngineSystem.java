@@ -15,16 +15,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-public class EngineSystem {
-
-    private final Engine engine;
+public class EngineSystem extends EngineAPI{
     private final List<String> includeList = new ArrayList<>();
     private Map<String, EngineCookie> cookies;
     private ArrayList<EngineFile> uploads;
     private File partsDir;
 
     public EngineSystem(Engine engine) {
-        this.engine = engine;
+        super(engine);
+    }
+
+    @Override
+    public String getVarName() {
+        return "System";
     }
 
     public long getTime() {
@@ -174,5 +177,9 @@ public class EngineSystem {
 
     public void addHeader(String key, String value) {
         engine.getResponse().setHeader(key, value);
+    }
+
+    public void importObject(String var) throws EngineException {
+        engine.putObject(var);
     }
 }

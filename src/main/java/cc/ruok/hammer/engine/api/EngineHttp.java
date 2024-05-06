@@ -1,5 +1,6 @@
 package cc.ruok.hammer.engine.api;
 
+import cc.ruok.hammer.engine.Engine;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 
@@ -8,7 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EngineHttp {
+public class EngineHttp extends EngineAPI {
+
+    public EngineHttp(Engine engine) {
+        super(engine);
+    }
 
     public Response get(String url, Map<String, String> header, Map<String, String> cookies, int timeout) throws EngineException {
         try {
@@ -133,6 +138,11 @@ public class EngineHttp {
         ec.setPath(cookie.path);
         ec.setDomain(cookie.domain);
         return ec;
+    }
+
+    @Override
+    public String getVarName() {
+        return "Http";
     }
 
     public static class Response {
