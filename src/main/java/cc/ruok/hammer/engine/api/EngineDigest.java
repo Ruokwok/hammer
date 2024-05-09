@@ -49,6 +49,8 @@ public class EngineDigest extends EngineAPI {
             } else {
                 return null;
             }
+        } else if (obj instanceof EngineData ed) {
+            return DigestUtil.sha256Hex(ed.getBytes());
         }
         return DigestUtil.sha256Hex(obj.toString());
     }

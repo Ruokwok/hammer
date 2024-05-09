@@ -16,7 +16,7 @@ function include(filename) {
     if (filename == undefined) return;
     var file = getFile(filename);
     if (file.exists()) {
-        System.include(file.read(), file.toString());
+        System.include(file.readString(), file.toString());
     } else {
         throw new Error("the file \"" + filename + "\" is not exists.");
     }

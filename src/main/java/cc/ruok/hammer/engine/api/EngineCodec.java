@@ -48,8 +48,12 @@ public class EngineCodec extends EngineAPI {
         }
     }
 
-    public String base64Decode(String str) {
+    public String base64DecodeToString(String str) {
         return Base64.decodeStr(str);
+    }
+
+    public EngineData base64DecodeToData(String str) {
+        return new EngineData(Base64.decode(str), engine);
     }
 
     public String strToHex(String str) {

@@ -182,4 +182,9 @@ public class EngineSystem extends EngineAPI{
     public void importObject(String var) throws EngineException {
         engine.putObject(var);
     }
+
+    public void stop() throws EngineException {
+        //TODO 待完善，目前没有好的方法结束脚本，只能先抛异常处理
+        throw new EngineException("script stop.");
+    }
 }

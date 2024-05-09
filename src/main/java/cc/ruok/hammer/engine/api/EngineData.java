@@ -22,6 +22,15 @@ public class EngineData extends EngineAPI {
         file.write(this);
     }
 
+    public void write(EngineFile file) throws EngineException {
+        file.write(this);
+    }
+
+    public int getSize() {
+        if (bytes == null) return 0;
+        return bytes.length;
+    }
+
     @Override
     public String getVarName() {
         return null;
