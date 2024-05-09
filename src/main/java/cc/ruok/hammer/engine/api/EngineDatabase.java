@@ -120,6 +120,76 @@ public class EngineDatabase extends EngineAPI {
             }
         }
 
+        public Prepare prepare(String sql) throws EngineException {
+            try {
+                PreparedStatement p = connection.prepareStatement(sql);
+                return new Prepare(sql, p);
+            } catch (SQLException e) {
+                throw new EngineException(e);
+            }
+        }
+
+    }
+
+    public static class Prepare {
+
+        private String sql;
+        private PreparedStatement stat;
+
+        public Prepare(String sql, PreparedStatement stat) {
+            this.sql = sql;
+            this.stat = stat;
+        }
+
+        public void set(int index, Object value) throws EngineException {
+            try {
+                if (value instanceof String v) {
+                    stat.setString(index, v);
+                } else if (value instanceof Integer v) {
+                    stat.setInt(index, v);
+                } else if (value instanceof Long v) {
+                    stat.setLong(index, v);
+                } else if (value instanceof Float v) {
+                    stat.setFloat(index, v);
+                } else if (value instanceof Double v) {
+                    stat.setDouble(index, v);
+                } else if (value instanceof Boolean v) {
+                    stat.setBoolean(index, v);
+                } else {
+                    stat.setObject(index, value);
+                }
+            } catch (SQLException e) {
+                throw new EngineException(e);
+            }
+        }
+
+        public int executeUpdate() throws EngineException {
+            try {
+                return stat.executeUpdate();
+            } catch (SQLException e) {
+                throw new EngineException(e);
+            }
+        }
+
+        public List<Map<String, Object>> executeQuery() throws EngineException {
+            try {
+                ResultSet resultSet = stat.executeQuery();
+                List<Map<String, Object>> result = new LinkedList<>();
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                while (resultSet.next()){
+                    Map<String, Object> map = new HashMap<>();
+                    for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
+                        map.put(metaData.getColumnName(i), resultSet.getObject(i));
+                    }
+                    result.add(map);
+                }
+                stat.close();
+                return result;
+            } catch (SQLException e) {
+                throw new EngineException(e);
+            }
+        }
+
     }
 
 }
