@@ -34,6 +34,7 @@ public class Engine {
     private ScriptWebSite webSite;
     private HttpSession session;
     private EngineDatabase database = new EngineDatabase(this);
+    private EngineSystem system = new EngineSystem(this);
     private static HashMap<String, Class<? extends EngineAPI>> apiMap = new HashMap<>();
 
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
@@ -48,7 +49,7 @@ public class Engine {
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
             engine.getBindings("js").putMember("Request", request);
-            putObject(new EngineSystem(this));
+            putObject(system);
             putObject(new EngineDate(this));
             putObject(new EngineHttp(this));
             putObject(new EngineDigest(this));
@@ -169,9 +170,11 @@ public class Engine {
             String compile = script.getCompile();
             engine.eval("js", compile);
             engine.eval("js", finishJs);
-            database.closeAll();
         } catch (PolyglotException e) {
             error(e);
+        } finally {
+            database.closeAll();
+            system.removeParts();
         }
         System.gc();
     }
