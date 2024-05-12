@@ -152,6 +152,7 @@ public class EngineSystem extends EngineAPI{
         String uuid = UUID.randomUUID().toString();
         for (Part part : parts) {
             if (name == null || name.equals(part.getName())) {
+                if (part.getSubmittedFileName().isEmpty()) break;
                 File file = new File("temp/" + uuid + "/" + part.getSubmittedFileName());
                 partsDir = new File("temp/" + uuid);
                 partsDir.mkdir();
