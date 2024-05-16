@@ -38,7 +38,7 @@ public class WebServer {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         String temp = Paths.get("temp").toFile().getAbsolutePath();
-        MultipartConfigElement multipartConfigElement = new MultipartConfigElement(temp, 2048 * 1024, 20971520, 0);
+        MultipartConfigElement multipartConfigElement = new MultipartConfigElement(temp, 20971520 *10, 20971520 *10, 0);
         ServletHolder servletHolder = new ServletHolder(WebServlet.class);
         servletHolder.getRegistration().setMultipartConfig(multipartConfigElement);
         context.addServlet(servletHolder, "/");

@@ -167,11 +167,11 @@ public class EngineSystem extends EngineAPI{
     }
 
     public void removeParts() {
-        if (partsDir != null) {
+        if (partsDir != null && partsDir.exists()) {
             try {
                 FileUtils.forceDelete(partsDir);
             } catch (IOException e) {
-                Logger.logException(e);
+//                Logger.logException(e);
             }
         }
     }

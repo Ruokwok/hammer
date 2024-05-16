@@ -2,6 +2,7 @@ package cc.ruok.hammer;
 
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
+import cc.ruok.hammer.plugin.PluginManager;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -21,6 +22,7 @@ public class Hammer {
             init(args);
             Engine.loadBaseJs();
             EngineAPI.registerDefault();
+            PluginManager.loadAll();
             WebServer.loadAll();
             WebServer server = WebServer.getInstance();
             server.start();
@@ -41,9 +43,9 @@ public class Hammer {
             Files.copy(yml, new File(CONFIG_PATH + "/default.yml").toPath());
         }
         File ssl = new File("ssl");
-        if (!ssl.exists()) {
-            ssl.mkdir();
-        }
+        if (!ssl.exists()) ssl.mkdir();
+        File plugins = new File("plugins");
+        if (!plugins.exists()) plugins.mkdir();
         File temp = new File("temp");
         FileUtils.deleteDirectory(temp);
     }

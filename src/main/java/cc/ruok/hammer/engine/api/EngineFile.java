@@ -150,4 +150,8 @@ public class EngineFile {
         return FileUtil.getAbsolutePath(file);
     }
 
+    public static File getFile(EngineFile file) {
+        return file.file;
+    }
+
 }
