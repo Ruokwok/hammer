@@ -22,6 +22,10 @@ public class EngineDate extends EngineAPI {
         return System.currentTimeMillis();
     }
 
+//    public String format(String exp, Object obj) {
+//        return null;
+//    }
+
     public String format(String exp, long time) {
         Date date = new Date(time);
         SimpleDateFormat ft = new SimpleDateFormat (exp);
