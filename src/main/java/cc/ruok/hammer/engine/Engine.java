@@ -324,6 +324,10 @@ public class Engine {
         engine.getBindings("js").putMember(api.getVarName() , api);
     }
 
+    public void setQueryUrl(String url) {
+        engine.getBindings("js").putMember("_GET", getParams(url.substring(url.indexOf("?") + 1)));
+    }
+
     public static void registerAPI(String var, Class<? extends EngineAPI> apiClass) {
         apiMap.put(var, apiClass);
     }

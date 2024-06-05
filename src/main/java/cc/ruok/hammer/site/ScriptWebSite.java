@@ -1,9 +1,6 @@
 package cc.ruok.hammer.site;
 
-import cc.ruok.hammer.Config;
-import cc.ruok.hammer.Hammer;
-import cc.ruok.hammer.Logger;
-import cc.ruok.hammer.WebServlet;
+import cc.ruok.hammer.*;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.error.Http403Exception;
 import cc.ruok.hammer.error.Http404Exception;
@@ -17,11 +14,21 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScriptWebSite extends WebSite {
 
+    public HashMap<String, PseudoStatic> pseudoStaticMap = new HashMap<>();
+
     public ScriptWebSite(Config config) {
         super(config);
+        if (config.pseudo_static != null && config.pseudo_static.size() > 0) {
+            for (String exp : config.pseudo_static) {
+                PseudoStatic pseudoStatic = new PseudoStatic(exp);
+                if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
+            }
+        }
     }
 
     @Override
@@ -29,7 +36,18 @@ public class ScriptWebSite extends WebSite {
         try {
             long start = System.currentTimeMillis();
             resp.setCharacterEncoding("utf8");
-            File file = getFile(req);
+            String filter = filter(req.getServletPath());
+            String filePath;
+            if (filter == null) {
+                filePath = req.getServletPath();
+            } else {
+                if (filter.contains("?")) {
+                    filePath = filter.substring(0, filter.indexOf("?"));
+                } else {
+                    filePath = filter;
+                }
+            }
+            File file = getFile(filePath);
             String type = WebServlet.getFileType(file.getName());
             resp.setHeader("Content-Type", type);
             if (type.equals("application/octet-stream")) {
@@ -39,6 +57,7 @@ public class ScriptWebSite extends WebSite {
             if (Hammer.config.scriptFileTypes.contains(extensions)) {
                 String script = FileUtils.readFileToString(file, "utf-8");
                 Engine e = new Engine(script, req, resp, this);
+                if (filter != null) e.setQueryUrl(filter);
                 long end = System.currentTimeMillis();
                 e.execute();
                 Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
@@ -71,8 +90,7 @@ public class ScriptWebSite extends WebSite {
         return config.permission.get(key);
     }
 
-    private File getFile(HttpServletRequest request) throws HttpException {
-        String url = request.getServletPath();
+    private File getFile(String url) throws HttpException {
         File file = new File(config.path + url);
         if (!file.exists()) throw new Http404Exception(this);
         if (file.exists() && file.isDirectory()) {
@@ -90,5 +108,15 @@ public class ScriptWebSite extends WebSite {
         if (!filename.contains(".")) return null;
         String[] split = filename.split("\\.");
         return split[split.length - 1];
+    }
+
+    private String filter(String url) {
+        for (Map.Entry<String, PseudoStatic> entry : pseudoStaticMap.entrySet()) {
+            String target = entry.getValue().handler(url);
+            if (target != null) {
+                return target;
+            }
+        }
+        return null;
     }
 }

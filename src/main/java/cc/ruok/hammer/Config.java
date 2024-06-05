@@ -14,6 +14,7 @@ public class Config {
     public HashMap<String, Boolean> permission;
     public String ssl_keystore;
     public String ssl_password;
+    public List<String> pseudo_static;
 
     @Override
     public Config clone() {
