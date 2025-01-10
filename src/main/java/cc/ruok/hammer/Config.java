@@ -15,6 +15,7 @@ public class Config {
     public String ssl_keystore;
     public String ssl_password;
     public List<String> pseudo_static;
+    public HashMap<String, DatabasePool> database_pool;
 
     @Override
     public Config clone() {
@@ -28,5 +29,13 @@ public class Config {
         config.ssl_password = ssl_password;
         if (error_page != null) config.error_page = new HashMap<>(error_page);
         return config;
+    }
+
+    public static class DatabasePool {
+
+        public String url;
+        public String username;
+        public String password;
+
     }
 }

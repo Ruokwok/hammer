@@ -1,6 +1,7 @@
 package cc.ruok.hammer.engine.api;
 
 import cc.ruok.hammer.engine.Engine;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import java.sql.*;
 import java.util.*;
@@ -21,6 +22,17 @@ public class EngineDatabase extends EngineAPI {
             return dataBaseConnect;
         } catch (SQLException e) {
             throw new EngineException(e.getMessage());
+        }
+    }
+
+    public DataBaseConnect getConnect(String name) throws EngineException {
+        try {
+            ComboPooledDataSource cpds = engine.getWebSite().pool.get(name);
+            DataBaseConnect dataBaseConnect = new DataBaseConnect(cpds.getConnection());
+            connects.add(dataBaseConnect);
+            return dataBaseConnect;
+        } catch (Exception e) {
+            throw new EngineException(e);
         }
     }
 

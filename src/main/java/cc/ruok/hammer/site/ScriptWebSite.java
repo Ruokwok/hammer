@@ -6,11 +6,13 @@ import cc.ruok.hammer.error.Http403Exception;
 import cc.ruok.hammer.error.Http404Exception;
 import cc.ruok.hammer.error.Http500Exception;
 import cc.ruok.hammer.error.HttpException;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class ScriptWebSite extends WebSite {
 
     public HashMap<String, PseudoStatic> pseudoStaticMap = new HashMap<>();
+    public HashMap<String, ComboPooledDataSource> pool = new HashMap<>();
 
     public ScriptWebSite(Config config) {
         super(config);
@@ -29,11 +32,28 @@ public class ScriptWebSite extends WebSite {
                 if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
             }
         }
+        if (config.database_pool != null) {
+            for (Map.Entry<String, Config.DatabasePool> entry : config.database_pool.entrySet()) {
+                ComboPooledDataSource cpds = new ComboPooledDataSource();
+                try {
+                    cpds.setDriverClass("com.mysql.cj.jdbc.Driver");
+                    cpds.setJdbcUrl("jdbc:" + entry.getValue().url);
+                    cpds.setUser(entry.getValue().username);
+                    cpds.setPassword(entry.getValue().password);
+                    pool.put(entry.getKey(), cpds);
+                } catch (PropertyVetoException e) {
+                    Logger.logException(e);
+                }
+            }
+        }
     }
 
     @Override
     public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
+                    req.getRemoteAddr() +
+                    " - " + req.getRequestURI());
             long start = System.currentTimeMillis();
             resp.setCharacterEncoding("utf8");
             String filter = filter(req.getServletPath());
