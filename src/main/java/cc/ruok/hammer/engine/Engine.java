@@ -50,11 +50,8 @@ public class Engine {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
             engine.getBindings("js").putMember("Request", request);
             putObject(system);
-            putObject(new EngineDate(this));
             putObject(new EngineHttp(this));
-            putObject(new EngineDigest(this));
             putObject(database);
-            putObject(new EngineCodec(this));
             if (req != null) {
                 engine.getBindings("js").putMember("_GET", getParams(req.getQueryString()));
                 engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
@@ -310,7 +307,7 @@ public class Engine {
 
     public void putObject(String var) throws EngineException {
         Class<? extends EngineAPI> apiClass = apiMap.get(var);
-        if (apiClass == null) throw new EngineException("Unknown API:" + var);
+        if (apiClass == null) throw new EngineException("Unknown module: " + var);
         try {
             Constructor<? extends EngineAPI> constructor = apiClass.getDeclaredConstructor(this.getClass());
             EngineAPI api = constructor.newInstance(this);
@@ -339,6 +336,10 @@ public class Engine {
         } catch (IOException e) {
             Logger.logException(e);
         }
+    }
+
+    public static Class<? extends EngineAPI> getModule(String name) {
+        return apiMap.get(name);
     }
 
 }

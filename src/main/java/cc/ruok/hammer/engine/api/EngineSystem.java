@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class EngineSystem extends EngineAPI{
@@ -182,6 +183,19 @@ public class EngineSystem extends EngineAPI{
 
     public void importObject(String var) throws EngineException {
         engine.putObject(var);
+    }
+
+    public Object module(String name) throws EngineException {
+        Class<? extends EngineAPI> apiClass = Engine.getModule(name);
+        if (apiClass == null) throw new EngineException("Unknown module: " + name);
+        try {
+            Constructor<? extends EngineAPI> constructor = apiClass.getDeclaredConstructor(engine.getClass());
+            EngineAPI api = constructor.newInstance(this.engine);
+            return api;
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        return null;
     }
 
     public void stop() throws EngineException {

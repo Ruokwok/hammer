@@ -55,8 +55,8 @@ function getUploadFiles(name = null) {
 function addHeader(key, value) {
     System.addHeader(key, value);
 }
-function importModule(name) {
-    System.importObject(name);
+function module(name) {
+    return System.module(name);
 }
 function exit(code = 200) {
     setStatus(200);
