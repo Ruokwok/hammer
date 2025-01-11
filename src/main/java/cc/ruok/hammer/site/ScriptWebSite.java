@@ -32,20 +32,6 @@ public class ScriptWebSite extends WebSite {
                 if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
             }
         }
-        if (config.database_pool != null) {
-            for (Map.Entry<String, Config.DatabasePool> entry : config.database_pool.entrySet()) {
-                ComboPooledDataSource cpds = new ComboPooledDataSource();
-                try {
-                    cpds.setDriverClass("com.mysql.cj.jdbc.Driver");
-                    cpds.setJdbcUrl("jdbc:" + entry.getValue().url);
-                    cpds.setUser(entry.getValue().username);
-                    cpds.setPassword(entry.getValue().password);
-                    pool.put(entry.getKey(), cpds);
-                } catch (PropertyVetoException e) {
-                    Logger.logException(e);
-                }
-            }
-        }
     }
 
     @Override
@@ -138,5 +124,32 @@ public class ScriptWebSite extends WebSite {
             }
         }
         return null;
+    }
+
+    @Override
+    public void enable() {
+        super.enable();
+        if (config.database_pool != null) {
+            for (Map.Entry<String, Config.DatabasePool> entry : config.database_pool.entrySet()) {
+                ComboPooledDataSource cpds = new ComboPooledDataSource();
+                try {
+                    cpds.setDriverClass("com.mysql.cj.jdbc.Driver");
+                    cpds.setJdbcUrl("jdbc:" + entry.getValue().url);
+                    cpds.setUser(entry.getValue().username);
+                    cpds.setPassword(entry.getValue().password);
+                    pool.put(entry.getKey(), cpds);
+                } catch (PropertyVetoException e) {
+                    Logger.logException(e);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void disable() {
+        super.disable();
+        for (Map.Entry<String, ComboPooledDataSource> entry : pool.entrySet()) {
+            entry.getValue().close();
+        }
     }
 }

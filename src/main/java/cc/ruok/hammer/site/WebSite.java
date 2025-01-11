@@ -2,6 +2,7 @@ package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.Config;
 import cc.ruok.hammer.Logger;
+import cc.ruok.hammer.WebServer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
@@ -16,7 +17,7 @@ public abstract class WebSite {
     File path;
 
     public WebSite(Config config) {
-        this.config = config.clone();
+        this.config = config;
         path = new File(config.path);
         if (!path.exists()) {
             try {
@@ -60,6 +61,16 @@ public abstract class WebSite {
         return null;
     }
 
-    public abstract void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException;
+    public void enable() {
+        for (String domain : config.domain) {
+            WebServer.getInstance().putDomain(domain, this);
+        }
+        Logger.info("enabled website: " + config.name + "(" + config.type + ").");
+    }
 
+    public void disable() {
+        WebServer.unload(config.getFile());
+    }
+
+    public abstract void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException;
 }

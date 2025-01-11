@@ -24,6 +24,7 @@ public class WebServer {
     private final HashMap<String, WebSite> sites = new HashMap<>();
     private final HashMap<String, WebSite> fileSiteMap = new HashMap<>();
     private final HashMap<String, SslKey> sniMap = new HashMap<>();
+    private final HashMap<String, WebSite> configMap = new HashMap<>();
 
     private ServerConnector connector;
 
@@ -113,9 +114,11 @@ public class WebServer {
     }
 
     public static void load(File yml) throws IOException {
-        unload(yml);
+        WebSite ws = getInstance().getWebSiteByConfig(yml.getName());
+        if (ws != null) ws.disable();
         YamlReader reader = new YamlReader(new FileReader(yml));
         Config config = reader.read(Config.class);
+        config.setFile(yml);
         reader.close();
         WebSite site = null;
         if (config.ssl_keystore != null) {
@@ -126,11 +129,11 @@ public class WebServer {
         } else if (config.type.equalsIgnoreCase("script")) {
             site = new ScriptWebSite(config);
         }
+        getInstance().configMap.putIfAbsent(yml.getName(), site);
         getInstance().fileSiteMap.put(FileUtil.getAbsolutePath(yml), site);
-        for (String domain : config.domain) {
-            getInstance().sites.putIfAbsent(domain, site);
+        if (site != null) {
+            site.enable();
         }
-        Logger.info("start website: " + config.name + "(" + config.type + ").");
     }
 
     public static void loadAll() {
@@ -146,19 +149,28 @@ public class WebServer {
     }
 
     public static void unload(File yml) {
-            String path = FileUtil.getAbsolutePath(yml);
+        String path = FileUtil.getAbsolutePath(yml);
         WebSite site = getInstance().fileSiteMap.get(path);
         if (site != null) {
             getInstance().fileSiteMap.remove(path);
             for (String domain : site.getDomains()) {
                 getInstance().sites.remove(domain);
+                getInstance().configMap.remove(yml.getName());
             }
-            Logger.info("stop site: " + site.getName());
+            Logger.info("disabled site: " + site.getName());
         }
     }
 
     public WebSite getWebSite(String domain) {
         return sites.get(domain);
+    }
+
+    public WebSite getWebSiteByConfig(String yml) {
+        return configMap.get(yml);
+    }
+
+    public void putDomain(String domain, WebSite site) {
+        sites.putIfAbsent(domain, site);
     }
 
     public class SslKey {

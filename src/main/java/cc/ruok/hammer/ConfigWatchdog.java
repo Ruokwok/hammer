@@ -1,5 +1,6 @@
 package cc.ruok.hammer;
 
+import cc.ruok.hammer.site.WebSite;
 import cn.hutool.core.io.watch.SimpleWatcher;
 import cn.hutool.core.io.watch.WatchMonitor;
 
@@ -22,10 +23,19 @@ public class ConfigWatchdog {
                 String type = event.kind().name();
                 try {
                     File _file = new File(file + "/" + path);
-                    if (type.equals("ENTRY_MODIFY")) WebServer.load(_file);
-                    if (type.equals("ENTRY_CREATE")) WebServer.load(_file);
-                    if (type.equals("ENTRY_DELETE")) WebServer.unload(_file);
-                    if (type.equals("OVERFLOW")) WebServer.unload(_file);
+//                    if (type.equals("ENTRY_MODIFY")) WebServer.load(_file);
+//                    if (type.equals("ENTRY_CREATE")) WebServer.load(_file);
+//                    if (type.equals("ENTRY_DELETE") || type.equals("OVERFLOW")) {
+//                        WebSite site = WebServer.getInstance().getWebSiteByConfig(_file.getName());
+//                        site.disable();
+//                    }
+                    WebSite site = WebServer.getInstance().getWebSiteByConfig(_file.getName());
+                    if (site == null) {
+                        WebServer.load(_file);
+                    } else {
+                        site.disable();
+                        site.enable();
+                    }
                 } catch (Exception e) {
                     Logger.logException(e);
                 }

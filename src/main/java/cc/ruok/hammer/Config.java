@@ -1,10 +1,13 @@
 package cc.ruok.hammer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Config {
+
+    private File file;
 
     public String name;
     public String path;
@@ -17,18 +20,12 @@ public class Config {
     public List<String> pseudo_static;
     public HashMap<String, DatabasePool> database_pool;
 
-    @Override
-    public Config clone() {
-        Config config = new Config();
-        config.name = name;
-        config.path = path;
-        config.type = type;
-        config.domain = new ArrayList<>(domain);
-        config.permission = new HashMap<>(permission);
-        config.ssl_keystore = ssl_keystore;
-        config.ssl_password = ssl_password;
-        if (error_page != null) config.error_page = new HashMap<>(error_page);
-        return config;
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
     }
 
     public static class DatabasePool {
