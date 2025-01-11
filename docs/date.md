@@ -1,5 +1,5 @@
 ## 日期与时间
-hammer内置的`Date`对象包含时间与日期相关的API
+`var date = module("Date");`
 
 ## Date
 
@@ -12,14 +12,14 @@ hammer内置的`Date`对象包含时间与日期相关的API
 - [获取当前星期](#获取当前星期)
 
 ### 获取当前时间戳
-`Date.getTime()`
+`date.getTime()`
 
 #### 返回值
 - 类型: **long**
 - 毫秒级13位时间戳
 
 ### 格式化时间
-`Date.format(exp, time)`
+`date.format(exp, time)`
 
 #### 参数
 
@@ -34,38 +34,39 @@ hammer内置的`Date`对象包含时间与日期相关的API
 
 #### 示例
 ```js
+    var date = module("Date");
     var time = 1708184706000;       //时间戳
-    var str = Date.format("yyyy-MM-dd hh:mm:ss", time); //格式化时间
+    var str = date.format("yyyy-MM-dd hh:mm:ss", time); //格式化时间
     print(str);         //输出为 2024-02-17 11:45:06
 ```
 
 ### 获取当前年份
-`Date.getYear()`
+`date.getYear()`
 
 #### 返回值
 - 类型：**int**
 
 ### 获取当前月份
-`Date.getMonth()`
+`date.getMonth()`
 
 #### 返回值
 - 类型：**int**
 - 真实月份无需+1
 
 ### 获取当前日
-`Date.getDayOfMonth()`
+`date.getDayOfMonth()`
 
 #### 返回值
 - 类型：**int**
 
 ### 获取当前日为今年第几天
-`Date.getDayOfYear()`
+`date.getDayOfYear()`
 
 #### 返回值
 - 类型：**int**
 
 ### 获取当前星期
-`Date.getDayOfWeek()`
+`date.getDayOfWeek()`
 
 #### 返回值
 - 类型：**int**

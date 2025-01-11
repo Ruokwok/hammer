@@ -3,7 +3,7 @@
 ### 获取文件对象
 可以通过内置函数获取文件对象:
 
-`getFile(filename)`
+`var file = getFile(filename)`
 
 #### 参数
 
@@ -20,13 +20,13 @@
 File对象用于操作服务器上的文件
 
 ### 获取文件名
-`getName()`
+`file.getName()`
 
 #### 返回值
 - 类型：**String**
 
 ### 获取文件路径
-`getPath()`
+`file.getPath()`
 
 获取文件的绝对路径
 
@@ -34,46 +34,46 @@ File对象用于操作服务器上的文件
 - 类型：**String**
 
 ### 文件是否存在
-`exists()`
+`file.exists()`
 
 #### 返回值
 - 类型：**boolean**
 
 ### 是否为文件
-`isFile()`
+`file.isFile()`
 
 #### 返回值
 - 类型：**boolean**
 
 ### 是否为文件夹
-`isDir()`
+`file.isDir()`
 
 #### 返回值
 - 类型：**boolean**
 
 ### 获取文件大小
-`getSize()`
+`file.getSize()`
 
 #### 返回值
 - 类型：**long**
 - 文件的大小，单位为字节。
 
 ### 创建文件
-`create()`
+`file.create()`
 
 #### 返回值
 - 类型：**boolean**
 - 是否成功
 
 ### 删除文件
-`delete()`
+`file.delete()`
 
 #### 返回值
 - 类型：**boolean**
 - 是否成功
 
 ### 读取文件
-`read(charset)`
+`file.read(charset)`
 
 以字符串格式读取文件
 
@@ -87,7 +87,7 @@ File对象用于操作服务器上的文件
 - 类型：**String**
 
 ### 写入文件
-`witer(str, charset)`
+`file.witer(str, charset)`
 
 写入字符串到文件，如果文件不存在则自动创建
 
@@ -99,7 +99,7 @@ File对象用于操作服务器上的文件
 | charset | 编码格式 | String | 否   |
 
 ### 追加写入文件
-`append(str, charset)`
+`file.append(str, charset)`
 
 在文件末尾追加写入
 
@@ -111,7 +111,7 @@ File对象用于操作服务器上的文件
 | charset | 编码格式 | String | 否   |
 
 ### 移动文件
-`move(path)`
+`file.move(path)`
 
 移动文件到指定位置，可用于重命名。
 
@@ -122,7 +122,7 @@ File对象用于操作服务器上的文件
 | path    | 目标位置 | String | 是   |
 
 ### 复制文件
-`copy(path)`
+`file.copy(path)`
 
 复制文件到指定位置
 

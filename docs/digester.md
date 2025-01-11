@@ -1,5 +1,5 @@
 ## 数据摘要算法
-内置`Digester`对象包含数据摘要算法相关API
+`var digester = module("Digest");`
 
 支持以下算法:
 - [MD5](#md5)
@@ -8,9 +8,9 @@
 - [SHA512](#sha512)
 
 ### MD5
-`Digester.md5(obj)` 计算32位MD5值
+`digester.md5(obj)` 计算32位MD5值
 
-`Digester.md5Hex16(obj)` 计算16位MD5值
+`digester.md5Hex16(obj)` 计算16位MD5值
 
 #### 参数
 
@@ -23,7 +23,7 @@
 - 类型: **String**
 
 ### SHA1
-`Digester.sha1(obj)`
+`digester.sha1(obj)`
 
 #### 参数
 
@@ -36,7 +36,7 @@
 - 类型: **String**
 
 ### SHA256
-`Digester.sha256(obj)`
+`digester.sha256(obj)`
 
 #### 参数
 
@@ -49,7 +49,7 @@
 - 类型: **String**
 
 ### SHA512
-`Digester.sha512(obj)`
+`digester.sha512(obj)`
 
 #### 参数
 

@@ -1,5 +1,7 @@
 ## 编解码器
-内置的`Codec`对象提供了编解码相关接口。
+`
+var codec = module("Codec");
+`
 
 - [Base32编码](#Base32编码)
 - [Base32解码](#Base32解码)
@@ -11,7 +13,7 @@
 - [16进制转字符串](#16进制转字符串)
 
 ### Base32编码
-`base32Encode(obj)`
+`codec.base32Encode(obj)`
 
 #### 参数
 
@@ -24,7 +26,7 @@
 - Base32字符串
 
 ### Base32解码
-`base32Decode(str)`
+`codec.base32Decode(str)`
 
 #### 参数
 
@@ -37,7 +39,7 @@
 - 源字符串
 
 ### Base62编码
-`base62Encode(obj)`
+`codec.base62Encode(obj)`
 
 #### 参数
 
@@ -50,7 +52,7 @@
 - Base62字符串
 
 ### Base62解码
-`base62Decode(str)`
+`codec.base62Decode(str)`
 
 #### 参数
 
@@ -63,7 +65,7 @@
 - 源字符串
 
 ### Base64编码
-`base64Encode(obj)`
+`codec.base64Encode(obj)`
 
 #### 参数
 
@@ -76,7 +78,7 @@
 - Base64字符串
 
 ### Base64解码
-`base64Decode(str)`
+`codec.base64DecodeToString(str)`
 
 #### 参数
 
@@ -89,7 +91,7 @@
 - 源字符串
 
 ### 字符串转16进制
-`strToHex(str)`
+`codec.strToHex(str)`
 
 #### 参数
 
@@ -102,7 +104,7 @@
 - 16进制字符串
 
 ### 16进制转字符串
-`hexToStr(str)`
+`codec.hexToStr(str)`
 
 #### 参数
 
