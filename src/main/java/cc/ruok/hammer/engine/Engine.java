@@ -33,9 +33,9 @@ public class Engine {
     private HttpServletResponse response;
     private ScriptWebSite webSite;
     private HttpSession session;
-    private EngineDatabase database = new EngineDatabase(this);
     private EngineSystem system = new EngineSystem(this);
     private static HashMap<String, Class<? extends EngineAPI>> apiMap = new HashMap<>();
+    private final List<EngineDatabase.DataBaseConnect> connects = new ArrayList<>();
 
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this.str = str;
@@ -51,7 +51,6 @@ public class Engine {
             engine.getBindings("js").putMember("Request", request);
             putObject(system);
             putObject(new EngineHttp(this));
-            putObject(database);
             if (req != null) {
                 engine.getBindings("js").putMember("_GET", getParams(req.getQueryString()));
                 engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
@@ -170,7 +169,7 @@ public class Engine {
         } catch (PolyglotException e) {
             error(e);
         } finally {
-            database.closeAll();
+            closeAllConnect();
             system.removeParts();
         }
         System.gc();
@@ -323,6 +322,19 @@ public class Engine {
 
     public void setQueryUrl(String url) {
         engine.getBindings("js").putMember("_GET", getParams(url.substring(url.indexOf("?") + 1)));
+    }
+
+    public void addConnect(EngineDatabase.DataBaseConnect connect) {
+        connects.add(connect);
+    }
+
+    public void closeAllConnect() {
+        for (EngineDatabase.DataBaseConnect connect : connects) {
+            try {
+                connect.close();
+            } catch (EngineException e) {
+            }
+        }
     }
 
     public static void registerAPI(String var, Class<? extends EngineAPI> apiClass) {

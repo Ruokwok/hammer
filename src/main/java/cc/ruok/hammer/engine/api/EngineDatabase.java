@@ -8,8 +8,6 @@ import java.util.*;
 
 public class EngineDatabase extends EngineAPI {
 
-    private final List<DataBaseConnect> connects = new ArrayList<>();
-
     public EngineDatabase(Engine engine) {
         super(engine);
     }
@@ -18,7 +16,7 @@ public class EngineDatabase extends EngineAPI {
         try {
             Connection conn = DriverManager.getConnection("jdbc:" + url, username, password);
             DataBaseConnect dataBaseConnect = new DataBaseConnect(conn);
-            connects.add(dataBaseConnect);
+            engine.addConnect(dataBaseConnect);
             return dataBaseConnect;
         } catch (SQLException e) {
             throw new EngineException(e.getMessage());
@@ -29,7 +27,7 @@ public class EngineDatabase extends EngineAPI {
         try {
             ComboPooledDataSource cpds = engine.getWebSite().pool.get(name);
             DataBaseConnect dataBaseConnect = new DataBaseConnect(cpds.getConnection());
-            connects.add(dataBaseConnect);
+            engine.addConnect(dataBaseConnect);
             return dataBaseConnect;
         } catch (Exception e) {
             throw new EngineException(e);
@@ -37,12 +35,7 @@ public class EngineDatabase extends EngineAPI {
     }
 
     public void closeAll() {
-        for (DataBaseConnect connect : connects) {
-            try {
-                connect.close();
-            } catch (EngineException e) {
-            }
-        }
+        engine.closeAllConnect();
     }
 
     @Override
