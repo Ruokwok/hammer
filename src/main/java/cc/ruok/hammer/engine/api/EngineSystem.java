@@ -1,5 +1,6 @@
 package cc.ruok.hammer.engine.api;
 
+import cc.ruok.hammer.Hammer;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.Script;
@@ -201,5 +202,9 @@ public class EngineSystem extends EngineAPI{
     public void stop() throws EngineException {
         //TODO 待完善，目前没有好的方法结束脚本，只能先抛异常处理
         throw new EngineException("script stop.");
+    }
+
+    public String getVersion() {
+        return Hammer.VERSION;
     }
 }
