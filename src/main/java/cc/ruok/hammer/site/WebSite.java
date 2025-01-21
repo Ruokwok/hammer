@@ -104,8 +104,10 @@ public abstract class WebSite {
                 resp.setStatus(e.getCode());
                 String page = config.error_page.get("error_" + e.getCode());
                 File file;
+                if (page == null) page = "~/error_" + e.getCode() + ".html";
                 if (page.startsWith("~")) {
-                    //TODO 读取jar内部的脚本
+                    String string = IOUtils.toString(getClass().getResourceAsStream(page.replace("~", "/default_page")), "utf8");
+                    resp.getWriter().println(string.replaceAll("\\$\\{version}", Hammer.VERSION));
                 } else {
                     file = getFile(page);
                     execute(file, req, resp);
