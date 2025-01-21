@@ -21,7 +21,6 @@ import java.util.Map;
 
 public class ScriptWebSite extends WebSite {
 
-    public HashMap<String, PseudoStatic> pseudoStaticMap = new HashMap<>();
     public HashMap<String, ComboPooledDataSource> pool = new HashMap<>();
 
     public ScriptWebSite(Config config) {
@@ -35,37 +34,19 @@ public class ScriptWebSite extends WebSite {
     }
 
     @Override
-    public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
+    public void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException {
             Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
                     req.getRemoteAddr() +
                     " - " + req.getRequestURI());
             long start = System.currentTimeMillis();
-            resp.setCharacterEncoding("utf8");
             String filter = filter(req.getServletPath());
-            String filePath;
-            if (filter == null) {
-                filePath = req.getServletPath();
-            } else {
-                if (filter.contains("?")) {
-                    filePath = filter.substring(0, filter.indexOf("?"));
-                } else {
-                    filePath = filter;
-                }
-            }
-            File file = getFile(filePath);
-            String type = WebServlet.getFileType(file.getName());
-            resp.setHeader("Content-Type", type);
-            if (type.equals("application/octet-stream")) {
-                resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
-            }
             String extensions = getExtensions(file.getName());
             if (Hammer.config.scriptFileTypes.contains(extensions)) {
                 String script = FileUtils.readFileToString(file, "utf-8");
                 Engine e = new Engine(script, req, resp, this);
                 if (filter != null) e.setQueryUrl(filter);
-                long end = System.currentTimeMillis();
                 e.execute();
+                long end = System.currentTimeMillis();
                 Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
                         req.getRemoteAddr() +
                         " - " + req.getRequestURI() + "(" + (end - start) + "ms)");
@@ -75,38 +56,12 @@ public class ScriptWebSite extends WebSite {
                 IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
                 inputStream.close();
             }
-        } catch (Http403Exception e) {
-            resp.setStatus(403);
-            resp.getWriter().println(e.getPage());
-        } catch (Http404Exception e) {
-            resp.setStatus(404);
-            resp.getWriter().println(e.getPage());
-        } catch (HttpException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            Logger.logException(e);
-            resp.setStatus(500);
-            resp.getWriter().println(new Http500Exception(this).getPage());
-        }
     }
 
     public boolean getPermission(String key) {
         if (config.permission == null) return false;
         if (!config.permission.containsKey(key)) return false;
         return config.permission.get(key);
-    }
-
-    private File getFile(String url) throws HttpException {
-        File file = new File(config.path + url);
-        if (!file.exists()) throw new Http404Exception(this);
-        if (file.exists() && file.isDirectory()) {
-            File page = new File(file + "/index.hs");
-            if (!page.exists()) page = new File(file + "/index.hsp");
-            if (!page.exists()) page = new File(file + "/index.html");
-            if (!page.exists()) throw new Http403Exception(this);
-            return page;
-        }
-        return file;
     }
 
     private String getExtensions(String filename) {

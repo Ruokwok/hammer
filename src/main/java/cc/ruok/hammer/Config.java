@@ -13,7 +13,7 @@ public class Config {
     public String path;
     public String type;
     public List<String> domain;
-    public HashMap<Integer, String> error_page;
+    public HashMap<String, String> error_page = new HashMap<>();
     public HashMap<String, Boolean> permission;
     public String ssl_keystore;
     public String ssl_password;

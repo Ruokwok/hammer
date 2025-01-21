@@ -21,43 +21,16 @@ public class StaticWebSite extends WebSite {
     }
 
     @Override
-    public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            resp.setCharacterEncoding("utf8");
-            File file = getFile(req);
-            String type = WebServlet.getFileType(file.getName());
-            resp.setHeader("Content-Type", type);
-            if (type.equals("application/octet-stream")) {
-                resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
-            }
+    public void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setCharacterEncoding("utf8");
+        String type = WebServlet.getFileType(file.getName());
+        resp.setHeader("Content-Type", type);
+        if (type.equals("application/octet-stream")) {
+            resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
+        }
 //            resp.getWriter().println(FileUtils.readFileToString(file, "utf-8"));
-            FileInputStream inputStream = new FileInputStream(file);
-            IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
-            inputStream.close();
-        } catch (Http403Exception e) {
-            resp.setStatus(403);
-            resp.getWriter().println(e.getPage());
-        } catch (Http404Exception e) {
-            resp.setStatus(404);
-            resp.getWriter().println(e.getPage());
-        } catch (HttpException e) {
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            Logger.logException(e);
-            resp.setStatus(500);
-            resp.getWriter().println(new Http500Exception(this).getPage());
-        }
-    }
-
-    private File getFile(HttpServletRequest request) throws HttpException {
-        String url = request.getServletPath();
-        File file = new File(config.path + url);
-        if (!file.exists()) throw new Http404Exception(this);
-        if (file.exists() && file.isDirectory()) {
-            File page = new File(file + "/index.html");
-            if (!page.exists()) throw new Http403Exception(this);
-            return page;
-        }
-        return file;
+        FileInputStream inputStream = new FileInputStream(file);
+        IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
+        inputStream.close();
     }
 }
