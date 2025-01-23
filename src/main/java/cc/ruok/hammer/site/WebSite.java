@@ -115,12 +115,12 @@ public abstract class WebSite {
             } catch (HttpException ex) {
                 Logger.logException(e);
                 resp.setStatus(500);
-                resp.getWriter().println(new Http500Exception(this).getPage());
+                resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.VERSION));
             }
         } catch (Exception e) {
             Logger.logException(e);
             resp.setStatus(500);
-            resp.getWriter().println(new Http500Exception(this).getPage());
+            resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.VERSION));
         }
     }
 
