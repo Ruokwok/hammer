@@ -32,6 +32,12 @@ public abstract class WebSite {
                 Logger.logException(e);
             }
         }
+        if (config.pseudo_static != null && config.pseudo_static.size() > 0) {
+            for (String exp : config.pseudo_static) {
+                PseudoStatic pseudoStatic = new PseudoStatic(exp);
+                if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
+            }
+        }
     }
 
     public static String notSite(String domain) {
