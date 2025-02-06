@@ -33,6 +33,10 @@ public class Config {
         public String url;
         public String username;
         public String password;
-
+        public int init_size = 5;
+        public int min_size = 5;
+        public int max_size = 20;
+        public int max_idle_time = 3600;
+        public int idle_conn_test = 1800;
     }
 }

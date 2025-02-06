@@ -92,6 +92,12 @@ public class ScriptWebSite extends WebSite {
                     cpds.setJdbcUrl("jdbc:" + entry.getValue().url);
                     cpds.setUser(entry.getValue().username);
                     cpds.setPassword(entry.getValue().password);
+                    cpds.setIdleConnectionTestPeriod(entry.getValue().idle_conn_test);
+                    cpds.setMaxIdleTime(entry.getValue().max_idle_time);
+                    cpds.setMaxPoolSize(entry.getValue().max_size);
+                    cpds.setInitialPoolSize(entry.getValue().init_size);
+                    cpds.setMinPoolSize(entry.getValue().min_size);
+                    cpds.setTestConnectionOnCheckout(true);
                     pool.put(entry.getKey(), cpds);
                 } catch (PropertyVetoException e) {
                     Logger.logException(e);
