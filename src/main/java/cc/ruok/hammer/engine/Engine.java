@@ -34,7 +34,7 @@ public class Engine {
     private ScriptWebSite webSite;
     private HttpSession session;
     private EngineSystem system = new EngineSystem(this);
-    private static HashMap<String, Class<? extends EngineAPI>> apiMap = new HashMap<>();
+    private static HashMap<String, Object> apiMap = new HashMap<>();
     private final List<EngineDatabase.DataBaseConnect> connects = new ArrayList<>();
 
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
@@ -304,18 +304,6 @@ public class Engine {
         return engine;
     }
 
-    public void putObject(String var) throws EngineException {
-        Class<? extends EngineAPI> apiClass = apiMap.get(var);
-        if (apiClass == null) throw new EngineException("Unknown module: " + var);
-        try {
-            Constructor<? extends EngineAPI> constructor = apiClass.getDeclaredConstructor(this.getClass());
-            EngineAPI api = constructor.newInstance(this);
-            engine.getBindings("js").putMember(var , api);
-        } catch (Exception e) {
-            Logger.logException(e);
-        }
-    }
-
     public void putObject(EngineAPI api) {
         engine.getBindings("js").putMember(api.getVarName() , api);
     }
@@ -337,8 +325,8 @@ public class Engine {
         }
     }
 
-    public static void registerAPI(String var, Class<? extends EngineAPI> apiClass) {
-        apiMap.put(var, apiClass);
+    public static void registerAPI(String var, Object object) {
+        apiMap.put(var, object);
     }
 
     public static void loadBaseJs() {
@@ -350,7 +338,7 @@ public class Engine {
         }
     }
 
-    public static Class<? extends EngineAPI> getModule(String name) {
+    public static Object getModule(String name) {
         return apiMap.get(name);
     }
 

@@ -182,19 +182,28 @@ public class EngineSystem extends EngineAPI{
         engine.getResponse().setHeader(key, value);
     }
 
-    public void importObject(String var) throws EngineException {
-        engine.putObject(var);
-    }
-
     public Object module(String name) throws EngineException {
-        Class<? extends EngineAPI> apiClass = Engine.getModule(name);
-        if (apiClass == null) throw new EngineException("Unknown module: " + name);
-        try {
-            Constructor<? extends EngineAPI> constructor = apiClass.getDeclaredConstructor(engine.getClass());
-            EngineAPI api = constructor.newInstance(this.engine);
-            return api;
-        } catch (Exception e) {
-            Logger.logException(e);
+        Object object = Engine.getModule(name);
+        if (object == null) throw new EngineException("Unknown module: " + name);
+        if (object instanceof Class<?> apiClass) {
+            if (EngineAPI.class.isAssignableFrom(apiClass)) {
+                try {
+                    Constructor<? extends EngineAPI> constructor = (Constructor<? extends EngineAPI>) apiClass.getDeclaredConstructor(engine.getClass());
+                    EngineAPI api = constructor.newInstance(this.engine);
+                    return api;
+                } catch (Exception e) {
+                    Logger.logException(e);
+                }
+            } else {
+                try {
+                    Constructor<?> constructor = apiClass.getConstructor();
+                    return constructor.newInstance();
+                } catch (Exception e) {
+                    Logger.logException(e);
+                }
+            }
+        } else {
+            return object;
         }
         return null;
     }
