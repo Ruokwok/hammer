@@ -20,7 +20,7 @@
         </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
-        <Root level="all">
+        <Root level="debug">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Root>
