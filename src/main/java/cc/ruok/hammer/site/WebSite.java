@@ -23,6 +23,7 @@ public abstract class WebSite {
     public HashMap<String, PseudoStatic> pseudoStaticMap = new HashMap<>();
 
     public WebSite(Config config) {
+        if (config == null) return;
         this.config = config;
         path = new File(config.path);
         if (!path.exists()) {

@@ -1,5 +1,6 @@
 package cc.ruok.hammer;
 
+import cc.ruok.hammer.site.Console;
 import cc.ruok.hammer.site.ScriptWebSite;
 import cc.ruok.hammer.site.StaticWebSite;
 import cc.ruok.hammer.site.WebSite;
@@ -29,6 +30,7 @@ public class WebServer {
     private ServerConnector connector;
 
     private WebServer() {
+        sites.put("console..cmd", new Console());
     }
 
     public static WebServer getInstance() {
