@@ -1,6 +1,8 @@
 package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.Config;
+import cc.ruok.hammer.plugin.HammerPlugin;
+import cc.ruok.hammer.plugin.PluginManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -15,18 +17,18 @@ public class Console extends WebSite {
 
     @Override
     public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String help =   "\nUsage:  hmr [command]\n" +
-                        "\nCommands:\n" +
-                        "  run\t\tStart the hammer\n" +
-                        "  stop\t\tStop the hammer\n" +
-                        "  -v,version\tPrint hammer version information\n" +
-                        "  -pl,plugins\tPrint installed plugin list\n";
-        String echo = help;
+        String echo = "error";
         try {
             String url[] = req.getRequestURI().substring(1).split("/");
-
+            if (url[0].equals("plugins")) {
+                echo = "\nTotal " + PluginManager.list.size() + " plugins\n";
+                for (HammerPlugin plugin: PluginManager.list) {
+                    echo += plugin.getDescription().name;
+                    echo += " - v" + plugin.getDescription().version;
+                    echo += "\n";
+                }
+            }
         } catch (Exception e) {
-            echo = help;
         } finally {
             resp.getWriter().print(echo);
         }

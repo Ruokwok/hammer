@@ -8,10 +8,14 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class PluginManager {
+
+    public static List<HammerPlugin> list = new ArrayList<>();
 
     public static void loadPlugin(File file) {
         try (ZipFile zipFile = new ZipFile(file)) {
@@ -26,8 +30,9 @@ public class PluginManager {
             if (aClass.getSuperclass() != HammerPlugin.class) {
                 throw new RuntimeException("the plugin class is not extended <HammerPlugin> : " + description.name);
             } else {
-                Object obj = aClass.getDeclaredConstructor().newInstance();
+                Object obj = aClass.getDeclaredConstructor().newInstance(description);
                 HammerPlugin plugin = (HammerPlugin) obj;
+                list.add(plugin);
                 plugin.onEnable();
             }
         } catch (Exception e) {
