@@ -342,4 +342,8 @@ public class Engine {
         return apiMap.get(name);
     }
 
+    public static Map<String, Object> getApiMap() {
+        return apiMap;
+    }
+
 }
