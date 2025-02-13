@@ -23,17 +23,18 @@ public class PluginManager {
             InputStream inputStream = zipFile.getInputStream(zipEntry);
             YamlReader yaml = new YamlReader(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
             PluginDescription description = yaml.read(PluginDescription.class);
-            Logger.info("load plugin: " + description.name + "_v" + description.version);
             URL[] urls = { file.toURI().toURL() };
             URLClassLoader classLoader = new URLClassLoader(urls);
             Class<?> aClass = classLoader.loadClass(description.main);
             if (aClass.getSuperclass() != HammerPlugin.class) {
                 throw new RuntimeException("the plugin class is not extended <HammerPlugin> : " + description.name);
             } else {
-                Object obj = aClass.getDeclaredConstructor().newInstance(description);
+                Object obj = aClass.getDeclaredConstructor().newInstance();
                 HammerPlugin plugin = (HammerPlugin) obj;
+                plugin.description = description;
                 list.add(plugin);
                 plugin.onEnable();
+                Logger.info("load plugin: " + description.name + "_v" + description.version);
             }
         } catch (Exception e) {
             Logger.logException(e);

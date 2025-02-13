@@ -17,15 +17,15 @@ public class Console extends WebSite {
 
     @Override
     public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String echo = "error";
+        Echo echo = new Echo();
         try {
             String url[] = req.getRequestURI().substring(1).split("/");
             if (url[0].equals("plugins")) {
-                echo = "\nTotal " + PluginManager.list.size() + " plugins\n";
+                echo.println();
+                echo.println("Total " + PluginManager.list.size() + " plugins");
                 for (HammerPlugin plugin: PluginManager.list) {
-                    echo += plugin.getDescription().name;
-                    echo += " - v" + plugin.getDescription().version;
-                    echo += "\n";
+                    echo.print("    " + plugin.getDescription().name);
+                    echo.println(" - v" + plugin.getDescription().version);
                 }
             }
         } catch (Exception e) {
@@ -36,5 +36,28 @@ public class Console extends WebSite {
 
     @Override
     public void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    }
+
+    static class Echo {
+
+        public StringBuffer s = new StringBuffer();
+
+        public void print(String str) {
+            s.append(str);
+        }
+
+        public void println(String str) {
+            s.append(str).append("\n");
+        }
+
+        public void println() {
+            s.append("\n");
+        }
+
+        @Override
+        public String toString() {
+            return s.toString();
+        }
+
     }
 }
