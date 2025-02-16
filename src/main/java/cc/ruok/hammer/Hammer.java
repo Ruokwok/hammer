@@ -3,7 +3,8 @@ package cc.ruok.hammer;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.plugin.PluginManager;
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.XmlUtil;
+import com.esotericsoftware.yamlbeans.YamlReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -11,20 +12,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Map;
 
 public class Hammer {
 
     public static final File CONFIG_PATH = new File("config");
     public static final String PROCESS_PATH = "runtime";
     public static HammerConfig config;
-    public static final String VERSION = "1.0-SNAPSHOT";
     public static final long START_TIME = System.currentTimeMillis();
+    public static Map<String, String> build;
     private static String token;
+    private static String version = "Self-Build Version";
 
     public static void main(String[] args) {
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
         try {
+            Logger.info("the hammer is starting...");
             config = HammerConfig.load();
             init(args);
             Engine.loadBaseJs();
@@ -40,6 +45,24 @@ public class Hammer {
     }
 
     public static void init(String[] args) throws IOException {
+        try {
+            String string = IOUtils.resourceToString("/META-INF/maven/cc.ruok.hammer/hammer/pom.xml", Charset.defaultCharset());
+            Map<String, Object> xml = XmlUtil.xmlToMap(string);
+            Object v = xml.get("version");
+            if (v instanceof String) {
+                version = (String) v;
+            }
+        } catch (Exception e) {
+            Logger.warning("Detected using a self-build version.");
+        }
+        try {
+            String string = IOUtils.resourceToString("/META-INF/MANIFEST.MF", Charset.defaultCharset());
+            YamlReader reader = new YamlReader(string);
+            build = reader.read(Map.class);
+        } catch (Exception e) {
+            build = null;
+        }
+        Logger.info("version: " + version);
         for (String param : args) {
             if (param.startsWith("--httpPort=")) config.httpPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
             if (param.startsWith("--httpsPort=")) config.httpsPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
@@ -72,6 +95,10 @@ public class Hammer {
 
     public static String getToken() {
         return token;
+    }
+
+    public static String getVersion() {
+        return version;
     }
 
 }

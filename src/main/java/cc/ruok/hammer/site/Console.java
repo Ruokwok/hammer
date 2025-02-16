@@ -1,6 +1,5 @@
 package cc.ruok.hammer.site;
 
-import cc.ruok.hammer.Config;
 import cc.ruok.hammer.Hammer;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.plugin.HammerPlugin;
@@ -28,7 +27,7 @@ public class Console extends WebSite {
         if (Hammer.getToken() == null || !Hammer.getToken().equals(req.getHeader("Token"))) return;
         Echo echo = new Echo();
         try {
-            String url[] = req.getRequestURI().substring(1).split("/");
+            String[] url = req.getRequestURI().substring(1).split("/");
             if (url[0].equals("plugins")) {
                 echo = plugins();
             } else if (url[0].equals("status")) {
@@ -114,7 +113,7 @@ public class Console extends WebSite {
     }
 
     @Override
-    public void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void execute(File file, HttpServletRequest req, HttpServletResponse resp) {
     }
 
     static class Echo {

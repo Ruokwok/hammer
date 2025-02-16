@@ -214,6 +214,6 @@ public class EngineSystem extends EngineAPI{
     }
 
     public String getVersion() {
-        return Hammer.VERSION;
+        return Hammer.getVersion();
     }
 }

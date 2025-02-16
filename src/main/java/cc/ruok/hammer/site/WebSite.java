@@ -114,7 +114,7 @@ public abstract class WebSite {
                 if (page == null) page = "~/error_" + e.getCode() + ".html";
                 if (page.startsWith("~")) {
                     String string = IOUtils.toString(getClass().getResourceAsStream(page.replace("~", "/default_page")), "utf8");
-                    resp.getWriter().println(string.replaceAll("\\$\\{version}", Hammer.VERSION));
+                    resp.getWriter().println(string.replaceAll("\\$\\{version}", Hammer.getVersion()));
                 } else {
                     file = getFile(page);
                     execute(file, req, resp);
@@ -122,12 +122,12 @@ public abstract class WebSite {
             } catch (HttpException ex) {
                 Logger.logException(e);
                 resp.setStatus(500);
-                resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.VERSION));
+                resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.getVersion()));
             }
         } catch (Exception e) {
             Logger.logException(e);
             resp.setStatus(500);
-            resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.VERSION));
+            resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.getVersion()));
         }
     }
 
