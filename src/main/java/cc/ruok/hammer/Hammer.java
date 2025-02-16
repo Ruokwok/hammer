@@ -16,10 +16,11 @@ import java.nio.file.Files;
 public class Hammer {
 
     public static final File CONFIG_PATH = new File("config");
-    public static final String PROCESS_PATH = "process";
+    public static final String PROCESS_PATH = "runtime";
     public static HammerConfig config;
     public static final String VERSION = "1.0-SNAPSHOT";
     public static final long START_TIME = System.currentTimeMillis();
+    private static String token;
 
     public static void main(String[] args) {
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
@@ -52,6 +53,9 @@ public class Hammer {
                 FileUtils.writeStringToFile(new File(PROCESS_PATH + "/HTTP"), String.valueOf(config.httpPort));
                 FileUtils.writeStringToFile(new File(PROCESS_PATH + "/HTTPS"), String.valueOf(config.httpsPort));
             }
+            if (param.startsWith("--token=")) {
+                token = param.substring(param.indexOf("=") + 1);
+            }
         }
         if (!CONFIG_PATH.exists()) {
             CONFIG_PATH.mkdir();
@@ -64,6 +68,10 @@ public class Hammer {
         if (!plugins.exists()) plugins.mkdir();
         File temp = new File("temp");
         FileUtils.deleteDirectory(temp);
+    }
+
+    public static String getToken() {
+        return token;
     }
 
 }

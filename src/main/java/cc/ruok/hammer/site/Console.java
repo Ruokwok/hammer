@@ -25,6 +25,7 @@ public class Console extends WebSite {
     public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String host = req.getRemoteHost();
         if (!host.equals("[0:0:0:0:0:0:0:1]") && !host.equals("127.0.0.1")) return;
+        if (Hammer.getToken() == null || !Hammer.getToken().equals(req.getHeader("Token"))) return;
         Echo echo = new Echo();
         try {
             String url[] = req.getRequestURI().substring(1).split("/");
