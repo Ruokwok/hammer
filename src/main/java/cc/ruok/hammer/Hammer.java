@@ -26,7 +26,25 @@ public class Hammer {
     private static String token;
     private static String version = "Self-Build Version";
 
+    static {
+        try {
+            String string = IOUtils.resourceToString("/META-INF/MANIFEST.MF", Charset.defaultCharset());
+            YamlReader reader = new YamlReader(string);
+            build = reader.read(Map.class);
+        } catch (Exception e) {
+            build = null;
+        }
+    }
+
     public static void main(String[] args) {
+        if (args.length == 1 && args[0].equals("--version")) {
+            System.out.println("Hammer version - " + build.get("Version"));
+            System.out.println("Build of JDK" + build.get("Build-Jdk-Spec") + "\t" + build.get("Build-Date"));
+            System.exit(0);
+        } else if (args.length == 1 && args[0].equals("--version=simple")) {
+            System.out.print(build.get("Version"));
+            System.exit(0);
+        }
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
         try {
             Logger.info("the hammer is starting...");
@@ -54,13 +72,6 @@ public class Hammer {
             }
         } catch (Exception e) {
             Logger.warning("Detected using a self-build version.");
-        }
-        try {
-            String string = IOUtils.resourceToString("/META-INF/MANIFEST.MF", Charset.defaultCharset());
-            YamlReader reader = new YamlReader(string);
-            build = reader.read(Map.class);
-        } catch (Exception e) {
-            build = null;
         }
         Logger.info("version: " + version);
         for (String param : args) {
