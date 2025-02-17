@@ -1,6 +1,8 @@
 package cc.ruok.hammer.plugin;
 
 import cc.ruok.hammer.Logger;
+import cc.ruok.hammer.engine.Engine;
+import cc.ruok.hammer.engine.api.EngineAPI;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import org.apache.commons.io.IOUtils;
 
@@ -33,8 +35,9 @@ public class PluginManager {
                 HammerPlugin plugin = (HammerPlugin) obj;
                 plugin.description = description;
                 list.add(plugin);
-                plugin.onEnable();
                 Logger.info("load plugin: " + description.name + "_v" + description.version);
+                plugin.onLoad();
+                plugin.onEnable();
             }
         } catch (Exception e) {
             Logger.logException(e);
@@ -50,6 +53,15 @@ public class PluginManager {
                 loadPlugin(jar);
             }
         }
+    }
+
+    public static void registerModule(String name, Object object) {
+        Engine.registerAPI(name, object);
+    }
+
+    public static void disable(HammerPlugin plugin) {
+        plugin.onDisable();
+        list.remove(plugin);
     }
 
 }
