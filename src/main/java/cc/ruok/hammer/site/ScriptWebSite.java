@@ -108,9 +108,9 @@ public class ScriptWebSite extends WebSite {
 
     @Override
     public void disable() {
-        super.disable();
         for (Map.Entry<String, ComboPooledDataSource> entry : pool.entrySet()) {
             entry.getValue().close();
         }
+        super.disable();
     }
 }

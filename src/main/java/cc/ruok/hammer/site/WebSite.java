@@ -78,10 +78,11 @@ public abstract class WebSite {
         for (String domain : config.domain) {
             WebServer.getInstance().putDomain(domain, this);
         }
-        Logger.info("enabled website: " + config.name + "(" + config.type + ").");
+        Logger.info("Enabled website: " + config.name + "(" + config.type + ").");
     }
 
     public void disable() {
+        pseudoStaticMap = null;
         WebServer.unload(config.getFile());
     }
 

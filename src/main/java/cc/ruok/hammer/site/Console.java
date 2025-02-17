@@ -32,6 +32,8 @@ public class Console extends WebSite {
                 echo = plugins();
             } else if (url[0].equals("status")) {
                 echo = status();
+            } else if (url[0].equals("stop")) {
+                Hammer.stop();
             }
         } catch (Exception e) {
         } finally {
@@ -114,6 +116,10 @@ public class Console extends WebSite {
 
     @Override
     public void execute(File file, HttpServletRequest req, HttpServletResponse resp) {
+    }
+
+    @Override
+    public void disable() {
     }
 
     static class Echo {

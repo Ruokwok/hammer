@@ -22,7 +22,7 @@ public class WebServer {
 
     private static WebServer that = new WebServer();
     private Server server;
-    private final HashMap<String, WebSite> sites = new HashMap<>();
+    private final Hashtable<String, WebSite> sites = new Hashtable<>();
     private final HashMap<String, WebSite> fileSiteMap = new HashMap<>();
     private final HashMap<String, SslKey> sniMap = new HashMap<>();
     private final HashMap<String, WebSite> configMap = new HashMap<>();
@@ -61,6 +61,8 @@ public class WebServer {
         connector.setPort(Hammer.config.httpsPort);
         server.addConnector(connector);
         server.start();
+        Logger.info("Hammer is started.");
+        server.join();
     }
 
     public void loadSSL(String keyFile, String password) {
@@ -159,7 +161,7 @@ public class WebServer {
                 getInstance().sites.remove(domain);
                 getInstance().configMap.remove(yml.getName());
             }
-            Logger.info("disabled site: " + site.getName());
+            Logger.info("Disabled site: " + site.getName());
         }
     }
 
@@ -173,6 +175,15 @@ public class WebServer {
 
     public void putDomain(String domain, WebSite site) {
         sites.putIfAbsent(domain, site);
+    }
+
+    protected void stop() throws Exception {
+        server.stop();
+        connector.stop();
+    }
+
+    protected Map<String, WebSite> getSites() {
+        return sites;
     }
 
     public class SslKey {

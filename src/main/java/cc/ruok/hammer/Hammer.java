@@ -3,6 +3,7 @@ package cc.ruok.hammer;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.plugin.PluginManager;
+import cc.ruok.hammer.site.WebSite;
 import cn.hutool.core.util.XmlUtil;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import org.apache.commons.io.FileUtils;
@@ -14,6 +15,8 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Hammer {
@@ -25,6 +28,7 @@ public class Hammer {
     public static Map<String, String> build;
     private static String token;
     private static String version = "Self-Build Version";
+    private static final ConfigWatchdog configWatchdog = new ConfigWatchdog(CONFIG_PATH);
 
     static {
         try {
@@ -47,7 +51,7 @@ public class Hammer {
         }
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
         try {
-            Logger.info("the hammer is starting...");
+            Logger.info("The hammer is starting...");
             config = HammerConfig.load();
             init(args);
             Engine.loadBaseJs();
@@ -55,8 +59,9 @@ public class Hammer {
             PluginManager.loadAll();
             WebServer.loadAll();
             WebServer server = WebServer.getInstance();
+            configWatchdog.start();
             server.start();
-            new ConfigWatchdog(new File("config")).start();
+            Logger.info("Hammer is stopped.");
         } catch (Exception e) {
             Logger.logException(e);
         }
@@ -73,7 +78,7 @@ public class Hammer {
         } catch (Exception e) {
             Logger.warning("Detected using a self-build version.");
         }
-        Logger.info("version: " + version);
+        Logger.info("Version: " + version);
         for (String param : args) {
             if (param.startsWith("--httpPort=")) config.httpPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
             if (param.startsWith("--httpsPort=")) config.httpsPort = Integer.parseInt(param.substring(param.indexOf("=") + 1));
@@ -110,6 +115,26 @@ public class Hammer {
 
     public static String getVersion() {
         return version;
+    }
+
+    public static void stop() {
+        Logger.info("Stopping server...");
+        try {
+            configWatchdog.stop();
+            Map<String, WebSite> sites = WebServer.getInstance().getSites();
+            ArrayList<WebSite> list = new ArrayList<>();
+            for (Map.Entry<String, WebSite> entry : sites.entrySet()) {
+                list.add(entry.getValue());
+            }
+            for (WebSite site : list) {
+                site.disable();
+            }
+            new File(PROCESS_PATH).delete();
+            WebServer.getInstance().stop();
+        } catch (Exception e) {
+            Logger.warning("An error occurred while stop server, force exit.");
+            System.exit(1);
+        }
     }
 
 }
