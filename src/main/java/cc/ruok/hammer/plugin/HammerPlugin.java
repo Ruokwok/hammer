@@ -2,7 +2,7 @@ package cc.ruok.hammer.plugin;
 
 public abstract class HammerPlugin {
 
-    protxected PluginDescription description;
+    protected PluginDescription description;
 
     public HammerPlugin(PluginDescription description) {
         this.description = description;
