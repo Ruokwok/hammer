@@ -2,7 +2,6 @@ package cc.ruok.hammer;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import cn.hutool.log.StaticLog;
 
 public class Logger {
 

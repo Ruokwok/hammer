@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
-import java.util.ArrayList;
 import java.util.Map;
 
 public class Console extends WebSite {

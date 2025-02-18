@@ -24,5 +24,8 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
         </Root>
+        <Logger name="com.mchange" level="off" additivity="false">
+            <AppenderRef ref="Console" level="off"/>
+        </Logger>
     </Loggers>
 </Configuration>
