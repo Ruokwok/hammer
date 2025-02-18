@@ -2,6 +2,7 @@ package cc.ruok.hammer;
 
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
+import cc.ruok.hammer.plugin.HammerPlugin;
 import cc.ruok.hammer.plugin.PluginManager;
 import cn.hutool.core.util.XmlUtil;
 import com.esotericsoftware.yamlbeans.YamlReader;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Hammer {
@@ -120,6 +122,9 @@ public class Hammer {
             WebServer.unloadAll();
             new File(PROCESS_PATH).delete();
             WebServer.getInstance().stop();
+            for (HammerPlugin plugin : new ArrayList<>(PluginManager.list)) {
+                PluginManager.unload(plugin);
+            }
         } catch (Exception e) {
             Logger.warning("An error occurred while stop server, force exit.");
             System.exit(1);

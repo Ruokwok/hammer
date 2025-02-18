@@ -59,7 +59,7 @@ public class PluginManager {
         Engine.registerAPI(name, object);
     }
 
-    public static void disable(HammerPlugin plugin) {
+    public static void unload(HammerPlugin plugin) {
         plugin.onDisable();
         list.remove(plugin);
     }
