@@ -61,7 +61,7 @@ public class WebServer {
         connector.setPort(Hammer.config.httpsPort);
         server.addConnector(connector);
         server.start();
-        Logger.info("Hammer is started.");
+        Logger.info("Hammer is started. (" + (System.currentTimeMillis() - Hammer.START_TIME) + "ms)");
         server.join();
     }
 
