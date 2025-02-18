@@ -55,4 +55,8 @@ public class ConfigWatchdog {
         Logger.info("Stop config watchdog");
     }
 
+    public boolean isRunning() {
+        return dog.isAlive();
+    }
+
 }

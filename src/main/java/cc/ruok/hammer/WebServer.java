@@ -165,6 +165,18 @@ public class WebServer {
         }
     }
 
+    public static void unloadAll() {
+        Hammer.stopConfigWatchdog();
+        Map<String, WebSite> sites = WebServer.getInstance().getSites();
+        ArrayList<WebSite> list = new ArrayList<>();
+        for (Map.Entry<String, WebSite> entry : sites.entrySet()) {
+            list.add(entry.getValue());
+        }
+        for (WebSite site : list) {
+            site.disable();
+        }
+    }
+
     public WebSite getWebSite(String domain) {
         return sites.get(domain);
     }

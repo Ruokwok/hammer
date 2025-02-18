@@ -1,6 +1,7 @@
 package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.Hammer;
+import cc.ruok.hammer.WebServer;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.plugin.HammerPlugin;
 import cc.ruok.hammer.plugin.PluginManager;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Console extends WebSite {
@@ -34,6 +36,8 @@ public class Console extends WebSite {
                 echo = status();
             } else if (url[0].equals("stop")) {
                 Hammer.stop();
+            } else if (url[0].equals("reload")) {
+                reload();
             }
         } catch (Exception e) {
         } finally {
@@ -66,7 +70,6 @@ public class Console extends WebSite {
     private Echo status() {
         Echo echo = new Echo();
         long time = System.currentTimeMillis() - Hammer.START_TIME;
-        echo.println();
         echo.println("Already run " + formatTime(time));
         echo.println("PID: " + ManagementFactory.getRuntimeMXBean().getPid());
         echo.println("Threads: " + ManagementFactory.getGarbageCollectorMXBeans().size());
@@ -85,6 +88,18 @@ public class Console extends WebSite {
         echo.println("    JVM: " + System.getProperty("java.vendor") + " " + System.getProperty("java.vm.name"));
         echo.println("    Version: " + System.getProperty("java.vm.version"));
         return echo;
+    }
+
+    private void reload() {
+        WebServer.unloadAll();
+        for (HammerPlugin plugin : PluginManager.list) {
+            plugin.onDisable();
+        }
+        WebServer.loadAll();
+        Hammer.startConfigWatchdog();
+        for (HammerPlugin plugin : PluginManager.list) {
+            plugin.onEnable();
+        }
     }
 
     public String formatTime(long time) {

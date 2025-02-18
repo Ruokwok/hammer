@@ -3,7 +3,6 @@ package cc.ruok.hammer;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.plugin.PluginManager;
-import cc.ruok.hammer.site.WebSite;
 import cn.hutool.core.util.XmlUtil;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import org.apache.commons.io.FileUtils;
@@ -15,8 +14,6 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.sql.Array;
-import java.util.ArrayList;
 import java.util.Map;
 
 public class Hammer {
@@ -28,7 +25,7 @@ public class Hammer {
     public static Map<String, String> build;
     private static String token;
     private static String version = "Self-Build Version";
-    private static final ConfigWatchdog configWatchdog = new ConfigWatchdog(CONFIG_PATH);
+    private static ConfigWatchdog configWatchdog;
 
     static {
         try {
@@ -59,7 +56,7 @@ public class Hammer {
             PluginManager.loadAll();
             WebServer.loadAll();
             WebServer server = WebServer.getInstance();
-            configWatchdog.start();
+            startConfigWatchdog();
             server.start();
             Logger.info("Hammer is stopped.");
         } catch (Exception e) {
@@ -120,21 +117,23 @@ public class Hammer {
     public static void stop() {
         Logger.info("Stopping server...");
         try {
-            configWatchdog.stop();
-            Map<String, WebSite> sites = WebServer.getInstance().getSites();
-            ArrayList<WebSite> list = new ArrayList<>();
-            for (Map.Entry<String, WebSite> entry : sites.entrySet()) {
-                list.add(entry.getValue());
-            }
-            for (WebSite site : list) {
-                site.disable();
-            }
+            WebServer.unloadAll();
             new File(PROCESS_PATH).delete();
             WebServer.getInstance().stop();
         } catch (Exception e) {
             Logger.warning("An error occurred while stop server, force exit.");
             System.exit(1);
         }
+    }
+
+    public static void startConfigWatchdog() {
+        if (configWatchdog != null && configWatchdog.isRunning()) return;
+        configWatchdog = new ConfigWatchdog(CONFIG_PATH);
+        configWatchdog.start();
+    }
+
+    public static void stopConfigWatchdog() {
+        configWatchdog.stop();
     }
 
 }
