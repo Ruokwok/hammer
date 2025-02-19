@@ -189,6 +189,16 @@ public class WebServer {
         sites.putIfAbsent(domain, site);
     }
 
+    public List<WebSite> getWebSites() {
+        ArrayList<WebSite> list = new ArrayList<>();
+        for (Map.Entry<String, WebSite> entry: sites.entrySet()) {
+            if (!list.contains(entry.getValue())) {
+                list.add(entry.getValue());
+            }
+        }
+        return list;
+    }
+
     protected void stop() throws Exception {
         server.stop();
         connector.stop();

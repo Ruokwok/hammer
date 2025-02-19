@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Console extends WebSite {
@@ -37,6 +39,8 @@ public class Console extends WebSite {
                 Hammer.stop();
             } else if (url[0].equals("reload")) {
                 reload();
+            } else if (url[0].equals("websites")) {
+                echo = websites();
             }
         } catch (Exception e) {
         } finally {
@@ -99,6 +103,17 @@ public class Console extends WebSite {
         for (HammerPlugin plugin : PluginManager.list) {
             plugin.onEnable();
         }
+    }
+
+    private Echo websites() {
+        Echo echo = new Echo();
+        List<WebSite> sites = WebServer.getInstance().getWebSites();
+        echo.println("Total " + sites.size() + " websites:");
+        for (WebSite site : sites) {
+            if (site == this) break;
+            echo.println("    " + site.getName() + " " + Arrays.toString(site.getDomains()));
+        }
+        return echo;
     }
 
     public String formatTime(long time) {
