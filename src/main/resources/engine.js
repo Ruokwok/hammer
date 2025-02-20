@@ -44,7 +44,7 @@ function database(url, username, password) {
     return Database.connect(url, username, password);
 }
 function curl(url) {
-    return Http.get(url).body();
+    return module("Http").get(url).body();
 }
 function sleep(time) {
     System.sleep(time);

@@ -36,10 +36,6 @@ public class EngineSystem extends EngineAPI{
         return System.currentTimeMillis();
     }
 
-    public void info(String str) {
-        Logger.info(str);
-    }
-
     public void warning(String str) {
         Logger.warning(str);
     }

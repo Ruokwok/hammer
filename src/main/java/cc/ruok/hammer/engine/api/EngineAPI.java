@@ -24,5 +24,6 @@ public abstract class EngineAPI {
         Engine.registerAPI("Http", EngineHttp.class);
         Engine.registerAPI("Digest", EngineDigest.class);
         Engine.registerAPI("Database", EngineDatabase.class);
+        Engine.registerAPI("Log", EngineLog.class);
     }
 }
