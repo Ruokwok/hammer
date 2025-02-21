@@ -2,10 +2,6 @@ package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.*;
 import cc.ruok.hammer.engine.Engine;
-import cc.ruok.hammer.error.Http403Exception;
-import cc.ruok.hammer.error.Http404Exception;
-import cc.ruok.hammer.error.Http500Exception;
-import cc.ruok.hammer.error.HttpException;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,14 +12,14 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class ScriptWebSite extends WebSite {
 
     public HashMap<String, ComboPooledDataSource> pool = new HashMap<>();
+    public Hashtable<String, Object> cache;
 
     public ScriptWebSite(Config config) {
         super(config);
@@ -81,6 +77,21 @@ public class ScriptWebSite extends WebSite {
             }
         }
         return null;
+    }
+
+    public void putCache(String key, Object value) {
+        if (cache == null) cache = new Hashtable<>();
+        cache.put(key, value);
+    }
+
+    public Object getCache(String key) {
+        if (cache == null) return null;
+        return cache.get(key);
+    }
+
+    public void removeCache(String key) {
+        if (cache == null) return;
+        cache.remove(key);
     }
 
     @Override
