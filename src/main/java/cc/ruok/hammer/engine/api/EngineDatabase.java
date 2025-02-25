@@ -181,7 +181,7 @@ public class EngineDatabase extends EngineAPI {
                 ResultSet resultSet = stat.executeQuery();
                 List<Map<String, Object>> result = new LinkedList<>();
                 ResultSetMetaData metaData = resultSet.getMetaData();
-                while (resultSet.next()){
+                while (resultSet.next()) {
                     Map<String, Object> map = new HashMap<>();
                     for (int i = 1; i < metaData.getColumnCount() + 1; i++) {
                         map.put(metaData.getColumnName(i), resultSet.getObject(i));
@@ -194,7 +194,12 @@ public class EngineDatabase extends EngineAPI {
                 throw new EngineException(e);
             }
         }
-
+        public void close() throws EngineException {
+            try {
+                stat.close();
+            } catch (SQLException e) {
+                throw new EngineException(e);
+            }
+        }
     }
-
 }
