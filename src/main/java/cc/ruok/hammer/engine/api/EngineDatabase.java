@@ -15,8 +15,8 @@ public class EngineDatabase extends EngineAPI {
     public DataBaseConnect connect(String url, String username, String password) throws EngineException {
         try {
             Connection conn = DriverManager.getConnection("jdbc:" + url, username, password);
-            DataBaseConnect dataBaseConnect = new DataBaseConnect(conn);
-            engine.addConnect(dataBaseConnect);
+            DataBaseConnect dataBaseConnect = new DataBaseConnect(conn, engine);
+            engine.addCloseable(dataBaseConnect);
             return dataBaseConnect;
         } catch (SQLException e) {
             throw new EngineException(e.getMessage());
@@ -26,8 +26,8 @@ public class EngineDatabase extends EngineAPI {
     public DataBaseConnect getConnect(String name) throws EngineException {
         try {
             ComboPooledDataSource cpds = engine.getWebSite().pool.get(name);
-            DataBaseConnect dataBaseConnect = new DataBaseConnect(cpds.getConnection());
-            engine.addConnect(dataBaseConnect);
+            DataBaseConnect dataBaseConnect = new DataBaseConnect(cpds.getConnection(), engine);
+            engine.addCloseable(dataBaseConnect);
             return dataBaseConnect;
         } catch (Exception e) {
             throw new EngineException(e);
@@ -43,12 +43,14 @@ public class EngineDatabase extends EngineAPI {
         return "Database";
     }
 
-    public static class DataBaseConnect {
+    public static class DataBaseConnect implements Closeable {
 
         private final Connection connection;
+        private final Engine engine;
 
-        public DataBaseConnect(Connection connection) {
+        public DataBaseConnect(Connection connection, Engine engine) {
             this.connection = connection;
+            this.engine = engine;
         }
 
         public List<Map<String, Object>> query(String sql) throws EngineException {
@@ -128,7 +130,9 @@ public class EngineDatabase extends EngineAPI {
         public Prepare prepare(String sql) throws EngineException {
             try {
                 PreparedStatement p = connection.prepareStatement(sql);
-                return new Prepare(sql, p);
+                Prepare prepare = new Prepare(sql, p, engine);
+                engine.addCloseable(prepare);
+                return prepare;
             } catch (SQLException e) {
                 throw new EngineException(e);
             }
@@ -136,14 +140,16 @@ public class EngineDatabase extends EngineAPI {
 
     }
 
-    public static class Prepare {
+    public static class Prepare implements Closeable {
 
         private String sql;
         private PreparedStatement stat;
+        private Engine engine;
 
-        public Prepare(String sql, PreparedStatement stat) {
+        public Prepare(String sql, PreparedStatement stat, Engine engine) {
             this.sql = sql;
             this.stat = stat;
+            this.engine = engine;
         }
 
         public void set(int index, Object value) throws EngineException {

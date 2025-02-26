@@ -28,14 +28,13 @@ public class Engine {
     private HttpServletRequest req;
     private static String baseJs;
     private static String finishJs;
-    private int i = 0;
     private PrintWriter writer;
     private HttpServletResponse response;
     private ScriptWebSite webSite;
     private HttpSession session;
     private EngineSystem system = new EngineSystem(this);
     private static HashMap<String, Object> apiMap = new HashMap<>();
-    private final List<EngineDatabase.DataBaseConnect> connects = new ArrayList<>();
+    private final List<Closeable> closeables = new ArrayList<>();
 
     public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this.str = str;
@@ -312,14 +311,14 @@ public class Engine {
         engine.getBindings("js").putMember("_GET", getParams(url.substring(url.indexOf("?") + 1)));
     }
 
-    public void addConnect(EngineDatabase.DataBaseConnect connect) {
-        connects.add(connect);
+    public void addCloseable(Closeable closeable) {
+        closeables.add(closeable);
     }
 
     public void closeAllConnect() {
-        for (EngineDatabase.DataBaseConnect connect : connects) {
+        for (Closeable closeable : closeables) {
             try {
-                connect.close();
+                closeable.close();
             } catch (EngineException e) {
             }
         }
