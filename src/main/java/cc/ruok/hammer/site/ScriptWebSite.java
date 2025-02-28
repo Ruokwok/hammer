@@ -33,9 +33,6 @@ public class ScriptWebSite extends WebSite {
 
     @Override
     public void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
-                    req.getRemoteAddr() +
-                    " - " + req.getRequestURI());
             long start = System.currentTimeMillis();
             String filter = filter(req.getServletPath());
             String extensions = getExtensions(file.getName());
@@ -52,6 +49,9 @@ public class ScriptWebSite extends WebSite {
             } else {
                 FileInputStream inputStream = new FileInputStream(file);
                 IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
+                Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
+                        req.getRemoteAddr() +
+                        " - " + req.getRequestURI());
                 inputStream.close();
             }
     }
