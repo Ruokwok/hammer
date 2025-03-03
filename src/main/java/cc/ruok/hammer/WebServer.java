@@ -5,7 +5,7 @@ import cc.ruok.hammer.site.ScriptWebSite;
 import cc.ruok.hammer.site.StaticWebSite;
 import cc.ruok.hammer.site.WebSite;
 import cn.hutool.core.io.FileUtil;
-import com.esotericsoftware.yamlbeans.YamlReader;
+import cn.hutool.setting.yaml.YamlUtil;
 import jakarta.servlet.MultipartConfigElement;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -120,10 +120,8 @@ public class WebServer {
     public static void load(File yml) throws IOException {
         WebSite ws = getInstance().getWebSiteByConfig(yml.getName());
         if (ws != null) ws.disable();
-        YamlReader reader = new YamlReader(new FileReader(yml));
-        Config config = reader.read(Config.class);
+        Config config = YamlUtil.load(new FileReader(yml), Config.class);
         config.setFile(yml);
-        reader.close();
         WebSite site = null;
         if (config.ssl_keystore != null) {
             WebServer.getInstance().addSSL(config.ssl_keystore, config.ssl_password);

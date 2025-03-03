@@ -1,7 +1,6 @@
 package cc.ruok.hammer;
 
-import com.esotericsoftware.yamlbeans.YamlReader;
-import com.esotericsoftware.yamlbeans.YamlWriter;
+import cn.hutool.setting.yaml.YamlUtil;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -45,13 +44,10 @@ public class HammerConfig {
             config.fileHeader.put("xls", "application/vnd.ms-excel");
             config.fileHeader.put("xlsx", "application/vnd.ms-excel");
             config.fileHeader.put("xml", "text/xml");
-            YamlWriter writer = new YamlWriter(new FileWriter(file));
-            writer.write(config);
-            writer.close();
+            YamlUtil.dump(config, new FileWriter(file));
             return config;
         }
-        YamlReader reader = new YamlReader(new FileReader(file));
-        return reader.read(HammerConfig.class);
+        return YamlUtil.load(new FileReader(file), HammerConfig.class);
     }
 
 }

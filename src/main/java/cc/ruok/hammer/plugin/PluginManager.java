@@ -2,8 +2,7 @@ package cc.ruok.hammer.plugin;
 
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.Engine;
-import cc.ruok.hammer.engine.api.EngineAPI;
-import com.esotericsoftware.yamlbeans.YamlReader;
+import cn.hutool.setting.yaml.YamlUtil;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -23,8 +22,7 @@ public class PluginManager {
         try (ZipFile zipFile = new ZipFile(file)) {
             ZipEntry zipEntry = zipFile.getEntry("plugin.yml");
             InputStream inputStream = zipFile.getInputStream(zipEntry);
-            YamlReader yaml = new YamlReader(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
-            PluginDescription description = yaml.read(PluginDescription.class);
+            PluginDescription description = YamlUtil.load(inputStream, PluginDescription.class);
             URL[] urls = { file.toURI().toURL() };
             URLClassLoader classLoader = new URLClassLoader(urls);
             Class<?> aClass = classLoader.loadClass(description.main);

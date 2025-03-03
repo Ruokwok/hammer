@@ -5,7 +5,7 @@ import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.plugin.HammerPlugin;
 import cc.ruok.hammer.plugin.PluginManager;
 import cn.hutool.core.util.XmlUtil;
-import com.esotericsoftware.yamlbeans.YamlReader;
+import cn.hutool.setting.yaml.YamlUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -31,9 +31,7 @@ public class Hammer {
 
     static {
         try {
-            String string = IOUtils.resourceToString("/META-INF/MANIFEST.MF", Charset.defaultCharset());
-            YamlReader reader = new YamlReader(string);
-            build = reader.read(Map.class);
+            build = YamlUtil.load(Hammer.class.getResourceAsStream("/META-INF/MANIFEST.MF"), Map.class);
         } catch (Exception e) {
             build = null;
         }
