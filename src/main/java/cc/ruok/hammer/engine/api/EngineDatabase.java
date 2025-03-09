@@ -47,6 +47,7 @@ public class EngineDatabase extends EngineAPI {
 
         private final Connection connection;
         private final Engine engine;
+        private boolean keep = false;
 
         public DataBaseConnect(Connection connection, Engine engine) {
             this.connection = connection;
@@ -88,6 +89,16 @@ public class EngineDatabase extends EngineAPI {
             } catch (SQLException e) {
                 throw new EngineException(e.getMessage());
             }
+        }
+
+        @Override
+        public void keep() {
+            this.keep = true;
+        }
+
+        @Override
+        public boolean isKeep() {
+            return this.keep;
         }
 
         public boolean isClosed() throws EngineException {
@@ -145,6 +156,7 @@ public class EngineDatabase extends EngineAPI {
         private String sql;
         private PreparedStatement stat;
         private Engine engine;
+        private boolean keep = false;
 
         public Prepare(String sql, PreparedStatement stat, Engine engine) {
             this.sql = sql;
@@ -206,6 +218,16 @@ public class EngineDatabase extends EngineAPI {
             } catch (SQLException e) {
                 throw new EngineException(e);
             }
+        }
+
+        @Override
+        public void keep() {
+            this.keep = true;
+        }
+
+        @Override
+        public boolean isKeep() {
+            return this.keep;
         }
     }
 }

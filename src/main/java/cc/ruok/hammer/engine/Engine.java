@@ -318,7 +318,9 @@ public class Engine {
     public void closeAllConnect() {
         for (Closeable closeable : closeables) {
             try {
-                closeable.close();
+                if (!closeable.isKeep()) {
+                    closeable.close();
+                }
             } catch (EngineException e) {
             }
         }
