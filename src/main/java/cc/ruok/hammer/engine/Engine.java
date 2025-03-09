@@ -45,6 +45,7 @@ public class Engine {
         this.webSite = webSite;
         this.req = req;
         this.session = req.getSession();
+
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
             engine.getBindings("js").putMember("Request", request);
@@ -171,7 +172,7 @@ public class Engine {
             closeAllConnect();
             system.removeParts();
         }
-        System.gc();
+//        System.gc();
     }
 
     public void error(PolyglotException e) {

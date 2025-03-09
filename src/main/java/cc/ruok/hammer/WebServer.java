@@ -26,6 +26,7 @@ public class WebServer {
     private final HashMap<String, WebSite> fileSiteMap = new HashMap<>();
     private final HashMap<String, SslKey> sniMap = new HashMap<>();
     private final HashMap<String, WebSite> configMap = new HashMap<>();
+    private final Hashtable<Thread, WebSite> threadSiteMap = new Hashtable<>();
 
     private ServerConnector connector;
 
@@ -181,6 +182,17 @@ public class WebServer {
 
     public WebSite getWebSiteByConfig(String yml) {
         return configMap.get(yml);
+    }
+
+    public WebSite getWebSiteByThread() {
+        return threadSiteMap.get(Thread.currentThread());
+    }
+    public void putThreadSite(WebSite site) {
+        threadSiteMap.put(Thread.currentThread(), site);
+    }
+
+    public void removeThreadSite() {
+        threadSiteMap.remove(Thread.currentThread());
     }
 
     public void putDomain(String domain, WebSite site) {

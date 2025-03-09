@@ -39,8 +39,10 @@ public class ScriptWebSite extends WebSite {
             if (Hammer.config.scriptFileTypes.contains(extensions)) {
                 String script = FileUtils.readFileToString(file, "utf-8");
                 Engine e = new Engine(script, req, resp, this);
+                WebServer.getInstance().putThreadSite(this);
                 if (filter != null) e.setQueryUrl(filter);
                 e.execute();
+                WebServer.getInstance().removeThreadSite();
                 long end = System.currentTimeMillis();
                 Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
                         req.getRemoteAddr() +
