@@ -1,9 +1,14 @@
 # Hammer
 ## 简介
 Hammer是一款Java实现的基于Jetty的Web服务器，通过Graal.js引擎支持在页面中嵌入JavaScript脚本。
+
+Hammer仍处于早期开发阶段，API频繁改动，并且可能存在大量未知错误，请勿用于生产环境。
 ## 启动
 `java -jar hammer.jar`
 - JRE版本需 >= 17
+
+在使用GraalVM时，需安装js模块，命令如下:
+`gu install js`
 ## 目录
 ### 使用
 - [站点配置文件](docs/config.md)
