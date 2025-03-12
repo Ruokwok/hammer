@@ -35,7 +35,8 @@ public class ConfigWatchdog {
                         WebServer.load(_file);
                     } else {
                         site.disable();
-                        site.enable();
+                        WebServer.unload(_file);
+                        WebServer.load(_file);
                     }
                 } catch (Exception e) {
                     Logger.logException(e);

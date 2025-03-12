@@ -39,7 +39,7 @@ public class PseudoStatic {
     }
 
     public boolean isValid() {
-        return origin != null && origin != null;
+        return origin != null && target != null;
     }
 
     public String getOrigin() {

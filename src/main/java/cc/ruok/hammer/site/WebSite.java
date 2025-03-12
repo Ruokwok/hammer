@@ -33,12 +33,6 @@ public abstract class WebSite {
                 Logger.logException(e);
             }
         }
-        if (config.pseudo_static != null && config.pseudo_static.size() > 0) {
-            for (String exp : config.pseudo_static) {
-                PseudoStatic pseudoStatic = new PseudoStatic(exp);
-                if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
-            }
-        }
     }
 
     public static String notSite(String domain) {
@@ -78,11 +72,17 @@ public abstract class WebSite {
         for (String domain : config.domain) {
             WebServer.getInstance().putDomain(domain, this);
         }
+        if (config.pseudo_static != null && config.pseudo_static.size() > 0) {
+            for (String exp : config.pseudo_static) {
+                PseudoStatic pseudoStatic = new PseudoStatic(exp);
+                if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
+            }
+        }
         Logger.info("Enabled website: " + config.name + "(" + config.type + ").");
     }
 
     public void disable() {
-        pseudoStaticMap = null;
+        pseudoStaticMap.clear();
         WebServer.unload(config.getFile());
     }
 
@@ -145,7 +145,7 @@ public abstract class WebSite {
         return file;
     }
 
-    private String filter(String url) {
+    protected String filter(String url) {
         for (Map.Entry<String, PseudoStatic> entry : pseudoStaticMap.entrySet()) {
             String target = entry.getValue().handler(url);
             if (target != null) {
