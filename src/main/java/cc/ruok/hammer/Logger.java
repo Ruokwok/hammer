@@ -19,4 +19,16 @@ public class Logger {
         log.warn(str);
     }
 
+    public static void debug(String str) {
+        log.debug(str);
+    }
+
+    public static void error(String str) {
+        log.error(str);
+    }
+
+    public static void trace(String str) {
+        log.trace(str);
+    }
+
 }

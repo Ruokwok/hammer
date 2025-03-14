@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" monitorInterval="30">
+<Configuration status="OFF" monitorInterval="30">
     <Appenders>
         <console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{HH:mm:ss:SSS}][%p]%m%n"/>
         </console>
+        <console name="AnsiConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%cyan{%d{MM-dd HH:mm:ss.SSS}}[%style{%highlight{%-5p}{}}]%m%n"/>
+        </console>
         <RollingRandomAccessFile name="File" fileName="logs/server.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
-            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level - %msg%n"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
                 <OnStartupTriggeringPolicy/>
@@ -21,11 +24,16 @@
     </Appenders>
     <Loggers>
         <Root level="debug">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AnsiConsole"/>
             <AppenderRef ref="File"/>
         </Root>
+        <Logger name="cc.ruok.hammer" level="all" additivity="false">
+            <AppenderRef ref="AnsiConsole" level="all"/>
+            <AppenderRef ref="File" level="all"/>
+        </Logger>
         <Logger name="com.mchange" level="off" additivity="false">
-            <AppenderRef ref="Console" level="off"/>
+            <AppenderRef ref="AnsiConsole" level="off"/>
+            <AppenderRef ref="File" level="off"/>
         </Logger>
     </Loggers>
 </Configuration>
