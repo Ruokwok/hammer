@@ -309,7 +309,9 @@ public class Engine {
     }
 
     public void setQueryUrl(String url) {
-        engine.getBindings("js").putMember("_GET", getParams(url.substring(url.indexOf("?") + 1)));
+        Map<String, Object> params = getParams(url.substring(url.indexOf("?") + 1));
+        if (params.isEmpty()) return;
+        engine.getBindings("js").putMember("_GET", params);
     }
 
     public void addCloseable(Closeable closeable) {

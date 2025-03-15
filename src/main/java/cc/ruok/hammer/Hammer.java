@@ -8,6 +8,7 @@ import cn.hutool.core.util.XmlUtil;
 import cn.hutool.setting.yaml.YamlUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.graalvm.polyglot.Context;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +50,7 @@ public class Hammer {
         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
         try {
             Logger.info("The hammer is starting...");
+            testEngine();
             config = HammerConfig.load();
             init(args);
             Engine.loadBaseJs();
@@ -137,6 +139,18 @@ public class Hammer {
 
     public static void stopConfigWatchdog() {
         configWatchdog.stop();
+    }
+    public static void testEngine() {
+        Logger.debug("Testing JavaScript engine.");
+        try {
+            Context engine = Context.newBuilder("js").allowAllAccess(true).build();
+            engine.eval("js", "");
+        } catch (IllegalArgumentException e) {
+//            Logger.logException(e);
+            Logger.error("The js module is not installed, please install it and try again.");
+            Logger.error("If you using GraalVM, please try execute command: gu install js");
+            System.exit(1);
+        }
     }
 
 }
