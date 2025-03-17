@@ -3,9 +3,10 @@ HSP (Hammer Script Page)是hammer中可执行的JavaScript脚本类型文件，�
 
 ### HSP可以做什么
 - 动态生成页面内容
-- 读取和修服务器上的文件
+- 读取和修改服务器上的文件
 - 发送和接收Cookie
 - 连接并操作数据库
+- 调用Java对象
 
 ### 语法
 HSP脚本在服务器上执行，并将文本结果发送给浏览器，与PHP类似，HSP可以嵌入到HTML页面的任意位置。
