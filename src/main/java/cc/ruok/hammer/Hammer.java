@@ -25,9 +25,9 @@ public class Hammer {
     public static final String PROCESS_PATH = "runtime";
     public static HammerConfig config;
     public static final long START_TIME = System.currentTimeMillis();
-    public static Map<String, String> build;
+    public static Map<String, Object> build;
     private static String token;
-    private static String version = "Self-Build Version";
+    private static String version = "self-build version";
     private static ConfigWatchdog configWatchdog;
 
     static {
