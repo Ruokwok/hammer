@@ -36,6 +36,7 @@ function notrun {
 
 function ready {
 	cd $ROOT_PATH
+	mkdir -p runtime
 	cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16 > runtime/TOKEN
 	TOKEN=$(cat runtime/TOKEN)
 	rm -f logs/log
@@ -48,6 +49,7 @@ function stop {
 if [ "$1" == "start" ]; then
 	if [ $PID == 0 ]; then
 		ready
+		mkdir -p logs
 		$JAVA -jar $JAR -install --token=$TOKEN > logs/log 2>&1 &
 		disown
 	fi
