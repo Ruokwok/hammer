@@ -1,6 +1,12 @@
 package cc.ruok.hammer;
 
 import cn.hutool.setting.yaml.YamlUtil;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -12,6 +18,14 @@ public class HammerConfig {
     public int httpsPort;
     public ArrayList<String> scriptFileTypes = new ArrayList<>();
     public HashMap<String, String> fileHeader = new HashMap<>();
+
+    public static DumperOptions options = new DumperOptions();
+
+    static {
+        options.setCanonical(false);
+        options.setExplicitStart(false);
+        options.setExplicitEnd(false);
+    }
 
     public static HammerConfig load() throws IOException {
         File file = new File("server.yml");
@@ -44,10 +58,17 @@ public class HammerConfig {
             config.fileHeader.put("xls", "application/vnd.ms-excel");
             config.fileHeader.put("xlsx", "application/vnd.ms-excel");
             config.fileHeader.put("xml", "text/xml");
-            YamlUtil.dump(config, new FileWriter(file));
+            Representer customRepresenter = new Representer(new DumperOptions());
+            customRepresenter.addClassTag(HammerConfig.class, Tag.MAP);
+            Yaml yaml = new Yaml(new Constructor(HammerConfig.class, new LoaderOptions()), customRepresenter);
+            try (FileWriter writer = new FileWriter(file)) {
+                yaml.dump(config, writer);
+            }
             return config;
+        } else {
+            Yaml yaml = new Yaml(options);
+            return yaml.loadAs(new FileReader(file), HammerConfig.class);
         }
-        return YamlUtil.load(new FileReader(file), HammerConfig.class);
     }
 
 }
