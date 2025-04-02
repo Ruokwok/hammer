@@ -19,6 +19,7 @@ public class EngineHttp extends EngineAPI {
         try {
             HttpRequest request = HttpRequest.get(url);
             request.setConnectionTimeout(timeout);
+            request.setReadTimeout(timeout);
             if (header != null && header.size() > 0) {
                 for (Map.Entry<String, String> entry: header.entrySet()) {
                     request.header(entry.getKey(), entry.getValue());
