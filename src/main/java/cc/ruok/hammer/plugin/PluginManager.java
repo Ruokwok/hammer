@@ -33,7 +33,7 @@ public class PluginManager {
                 HammerPlugin plugin = (HammerPlugin) obj;
                 plugin.description = description;
                 list.add(plugin);
-                Logger.info("load plugin: " + description.name + "_v" + description.version);
+                Logger.info("Load plugin: " + description.name + "_v" + description.version);
                 plugin.onLoad();
                 plugin.onEnable();
             }
