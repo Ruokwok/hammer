@@ -10,6 +10,7 @@ public class Http404Exception extends HttpException {
 
     public Http404Exception(WebSite site) {
         super(site);
+        this.code = 404;
     }
 
     @Override
