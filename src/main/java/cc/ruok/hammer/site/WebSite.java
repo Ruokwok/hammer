@@ -93,6 +93,9 @@ public abstract class WebSite {
             String filePath;
             if (filter == null) {
                 filePath = req.getServletPath();
+                if (checkProtect(filePath)) {
+                    throw new Http403Exception(this);
+                }
             } else {
                 if (filter.contains("?")) {
                     filePath = filter.substring(0, filter.indexOf("?"));
@@ -153,6 +156,16 @@ public abstract class WebSite {
             }
         }
         return null;
+    }
+
+    protected boolean checkProtect(String path) {
+        if (config.protects == null) return false;
+        for (String exp : config.protects) {
+            //TODO 这里只是简单判断表达式是否是目标字符串的前段，不靠谱，以后有时间再改。
+            if (exp.equals(path)) return true;
+            if (path.startsWith(exp)) return true;
+        }
+        return false;
     }
 
     public abstract void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException;

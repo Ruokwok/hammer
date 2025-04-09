@@ -19,6 +19,7 @@ public class Config {
     public String ssl_password;
     public List<String> pseudo_static;
     public HashMap<String, DatabasePool> database_pool;
+    public List<String> protects;
 
     public File getFile() {
         return file;
