@@ -3,12 +3,10 @@ package cc.ruok.hammer.plugin;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.Engine;
 import cn.hutool.setting.yaml.YamlUtil;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;

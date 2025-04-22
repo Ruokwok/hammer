@@ -5,7 +5,6 @@ import cc.ruok.hammer.engine.api.Closeable;
 import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.engine.api.EngineException;
 import cc.ruok.hammer.engine.api.EngineSystem;
-import cc.ruok.hammer.engine.task.NullWriter;
 import cc.ruok.hammer.site.ScriptWebSite;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.Context;
@@ -13,6 +12,7 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -288,4 +288,22 @@ public class Engine {
         }
     }
 
+    public static class NullWriter extends PrintWriter {
+
+        public NullWriter() {
+            super(OutputStream.nullOutputStream());
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) {
+        }
+
+        @Override
+        public void flush() {
+        }
+
+        @Override
+        public void close() {
+        }
+    }
 }

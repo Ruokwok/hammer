@@ -2,15 +2,11 @@ package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.api.*;
-import cc.ruok.hammer.engine.task.NullWriter;
 import cc.ruok.hammer.site.ScriptWebSite;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.PolyglotException;
-import org.graalvm.polyglot.SourceSection;
 
 import java.io.BufferedReader;
 import java.io.IOException;

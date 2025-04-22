@@ -1,7 +1,7 @@
 package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.*;
-import cc.ruok.hammer.engine.Engine;
+import cc.ruok.hammer.engine.HttpEngine;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ public class ScriptWebSite extends WebSite {
             String extensions = getExtensions(file.getName());
             if (Hammer.config.scriptFileTypes.contains(extensions)) {
                 String script = FileUtils.readFileToString(file, "utf-8");
-                Engine e = new Engine(script, req, resp, this);
+                HttpEngine e = new HttpEngine(script, req, resp, this);
                 WebServer.getInstance().putThreadSite(this);
                 if (filter != null) e.setQueryUrl(filter);
                 e.execute();
