@@ -18,8 +18,7 @@ public abstract class EngineAPI {
     }
 
     public static void registerDefault() {
-        Engine.registerAPI("System", EngineSystem.class);
-        Engine.registerAPI("Codec", EngineCodec.class);
+        Engine.registerAPI("Codec", new EngineCodec(null));
         Engine.registerAPI("Date", EngineDate.class);
         Engine.registerAPI("Http", EngineHttp.class);
         Engine.registerAPI("Digest", EngineDigest.class);

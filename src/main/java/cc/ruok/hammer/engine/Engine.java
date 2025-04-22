@@ -1,68 +1,50 @@
 package cc.ruok.hammer.engine;
 
 import cc.ruok.hammer.Logger;
-import cc.ruok.hammer.engine.api.*;
+import cc.ruok.hammer.engine.api.Closeable;
+import cc.ruok.hammer.engine.api.EngineAPI;
+import cc.ruok.hammer.engine.api.EngineException;
+import cc.ruok.hammer.engine.api.EngineSystem;
+import cc.ruok.hammer.engine.task.NullWriter;
 import cc.ruok.hammer.site.ScriptWebSite;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Engine {
 
-    private String str;
-    private Script script;
-    private Map<String, String> outputPool = new HashMap<>();
-    private Context engine;
-    private EngineRequest request;
-    private HttpServletRequest req;
-    private static String baseJs;
-    private static String finishJs;
-    private PrintWriter writer;
-    private HttpServletResponse response;
-    private ScriptWebSite webSite;
-    private HttpSession session;
-    private EngineSystem system = new EngineSystem(this);
+    protected int status = 200;
+    protected String url;
+    protected Context engine;
+    protected String str;
+    protected Script script;
+    protected PrintWriter writer;
+    protected Map<String, String> outputPool = new HashMap<>();
+    protected static String baseJs;
+    protected static String finishJs;
+    protected EngineSystem system = new EngineSystem(this);
+    protected ScriptWebSite webSite;
     private static HashMap<String, Object> apiMap = new HashMap<>();
     private final List<Closeable> closeables = new ArrayList<>();
 
-    public Engine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
+    public Engine(String str, String url, ScriptWebSite webSite) {
         this.str = str;
-        this.script = new Script(str, this);
-        this.request = new EngineRequest(req);
-        this.writer = resp.getWriter();
-        this.response = resp;
+        this.url = url;
         this.webSite = webSite;
-        this.req = req;
-        this.session = req.getSession();
-
+        this.script = new Script(str, this);
+        this.writer = new NullWriter();
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
-            engine.getBindings("js").putMember("Request", request);
-            putObject(system);
-            putObject(new EngineHttp(this));
-            if (req != null) {
-                engine.getBindings("js").putMember("_GET", getParams(req.getQueryString()));
-                engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
-            }
+            engine.getBindings("js").putMember("System", system);
             engine.eval("js", baseJs);
         } catch (Exception e) {
             Logger.logException(e);
         }
-    }
-
-    public Engine(String script) throws IOException {
-        this(script, null, null, null);
     }
 
     public List<Content> analysis() {
@@ -165,14 +147,17 @@ public class Engine {
         try {
             String compile = script.getCompile();
             engine.eval("js", compile);
-            engine.eval("js", finishJs);
         } catch (PolyglotException e) {
             error(e);
+            e.printStackTrace();
         } finally {
-            closeAllConnect();
-            system.removeParts();
+            finish();
         }
-//        System.gc();
+    }
+
+    public void finish() {
+        closeAllConnect();
+        system.finish();
     }
 
     public void error(PolyglotException e) {
@@ -202,6 +187,24 @@ public class Engine {
             msg.append(" (on line ").append(line).append(")");
         }
         outputScript("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
+    }
+
+    public Context getContext() {
+        return engine;
+    }
+    public void addCloseable(Closeable closeable) {
+        closeables.add(closeable);
+    }
+
+    public void closeAllConnect() {
+        for (Closeable closeable : closeables) {
+            try {
+                if (!closeable.isKeep()) {
+                    closeable.close();
+                }
+            } catch (EngineException e) {
+            }
+        }
     }
 
     public Map<String, Object> getParams(String url) {
@@ -236,59 +239,6 @@ public class Engine {
         return webSite;
     }
 
-    public Map<String, Object> getSessionData() {
-        Enumeration<String> names = session.getAttributeNames();
-        Map<String, Object> map = new ConcurrentHashMap<>();
-        while (names.hasMoreElements()) {
-            String name = names.nextElement();
-            map.put(name, session.getAttribute(name));
-        }
-        return map;
-    }
-
-    public void saveSessionData(Map<String, Object> map) {
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (entry.getValue() != null) {
-                session.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
-    }
-
-    public void destroySession() {
-        session.invalidate();
-    }
-
-    public HttpSession getSession() {
-        return session;
-    }
-
-    public HttpServletResponse getResponse() {
-        return response;
-    }
-
-    public HttpServletRequest getRequest() {
-        return req;
-    }
-
-    private String getPostData(HttpServletRequest request) {
-        if (request.getContentType() == null) return null;
-        if (request.getContentType().startsWith("multipart/form-data;")) return null;
-        StringBuffer data = new StringBuffer();
-        String line = null;
-        BufferedReader reader = null;
-        try {
-            reader = request.getReader();
-            while (null != (line = reader.readLine()))
-                data.append(line);
-        } catch (IOException e) {
-        }
-        return data.toString();
-    }
-
-    public void putOutput(String key, String value) {
-        outputPool.put(key, value);
-    }
-
     public void outputStatic(String key) {
         String value = outputPool.get(key);
         if (value != null) {
@@ -300,12 +250,16 @@ public class Engine {
         writer.print(str);
     }
 
-    public Context getContext() {
-        return engine;
+    public void putOutput(String key, String value) {
+        outputPool.put(key, value);
     }
 
     public void putObject(EngineAPI api) {
         engine.getBindings("js").putMember(api.getVarName() , api);
+    }
+
+    public void setStatus(int code) {
+        this.status = code;
     }
 
     public void setQueryUrl(String url) {
@@ -314,40 +268,24 @@ public class Engine {
         engine.getBindings("js").putMember("_GET", params);
     }
 
-    public void addCloseable(Closeable closeable) {
-        closeables.add(closeable);
-    }
-
-    public void closeAllConnect() {
-        for (Closeable closeable : closeables) {
-            try {
-                if (!closeable.isKeep()) {
-                    closeable.close();
-                }
-            } catch (EngineException e) {
-            }
-        }
-    }
-
     public static void registerAPI(String var, Object object) {
         apiMap.put(var, object);
     }
-
-    public static void loadBaseJs() {
-        try {
-            baseJs = IOUtils.toString(Engine.class.getResourceAsStream("/engine.js"), "utf8");
-            finishJs = IOUtils.toString(Engine.class.getResourceAsStream("/finish.js"), "utf8");
-        } catch (IOException e) {
-            Logger.logException(e);
-        }
-    }
-
     public static Object getModule(String name) {
         return apiMap.get(name);
     }
 
     public static Map<String, Object> getApiMap() {
         return apiMap;
+    }
+
+    public static void loadBaseJs() {
+        try {
+            baseJs = IOUtils.toString(HttpEngine.class.getResourceAsStream("/engine.js"), "utf8");
+            finishJs = IOUtils.toString(HttpEngine.class.getResourceAsStream("/finish.js"), "utf8");
+        } catch (IOException e) {
+            Logger.logException(e);
+        }
     }
 
 }

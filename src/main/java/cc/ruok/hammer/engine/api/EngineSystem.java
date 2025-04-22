@@ -3,7 +3,9 @@ package cc.ruok.hammer.engine.api;
 import cc.ruok.hammer.Hammer;
 import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.Engine;
+import cc.ruok.hammer.engine.HttpEngine;
 import cc.ruok.hammer.engine.Script;
+import cc.ruok.hammer.engine.task.TaskEngine;
 import cn.hutool.json.JSONUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,9 +21,6 @@ import java.util.*;
 
 public class EngineSystem extends EngineAPI{
     private final List<String> includeList = new ArrayList<>();
-    private Map<String, EngineCookie> cookies;
-    private ArrayList<EngineFile> uploads;
-    private File partsDir;
 
     public EngineSystem(Engine engine) {
         super(engine);
@@ -74,58 +73,8 @@ public class EngineSystem extends EngineAPI{
         }
     }
 
-    public Map<String, Object> getSession(Object time) throws EngineException {
-        if (time instanceof Integer || time instanceof Long) {
-            engine.getSession().setMaxInactiveInterval((Integer) time);
-            return engine.getSessionData();
-        } else {
-            throw new EngineException("the params must be of type int.");
-        }
-    }
-
-    public void saveSession(Object obj) {
-        if (obj instanceof Map<?,?>) {
-            engine.saveSessionData((Map<String, Object>) obj);
-        }
-    }
-
-    public void sessionClose() {
-        engine.destroySession();
-    }
-
-    public void setStatus(Object o) throws EngineException {
-        if (o instanceof Integer) {
-            engine.getResponse().setStatus((Integer) o);
-        } else {
-            throw new EngineException("the status code must be of type int.");
-        }
-    }
-
-    public Map<String, EngineCookie> getCookies() {
-        if (cookies == null) {
-            cookies = new HashMap<>();
-            Cookie[] _cookie = engine.getRequest().getCookies();
-            if (_cookie == null) return cookies;
-            for (Cookie c : _cookie) {
-                EngineCookie cookie = new EngineCookie();
-                cookie.name = c.getName();
-                cookie.value = c.getValue();
-                cookie.path = c.getPath();
-                cookie.domain = c.getDomain();
-                cookie.age = c.getMaxAge();
-                cookie.httpOnly = c.isHttpOnly();
-                cookies.put(c.getName(), cookie);
-            }
-        }
-        return cookies;
-    }
-
-    public void putCookie(String name, String value, String path, String domain, int maxAge, boolean httpOnly) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setPath(path);
-        cookie.setMaxAge(maxAge);
-        cookie.setHttpOnly(httpOnly);
-        engine.getResponse().addCookie(cookie);
+    public void setStatus(int code) throws EngineException {
+        engine.setStatus(code);
     }
 
     public EngineFile getFile(String filename) {
@@ -140,51 +89,14 @@ public class EngineSystem extends EngineAPI{
         }
     }
 
-    public ArrayList<EngineFile> getUploadParts(String name) throws ServletException, IOException {
-        if (uploads != null) return uploads;
-        if (engine.getRequest().getContentType() == null) return null;
-        if (!engine.getRequest().getContentType().startsWith("multipart/form-data;")) return null;
-        Collection<Part> parts = engine.getRequest().getParts();
-        if (parts.size() == 0) return null;
-        ArrayList<EngineFile> list = new ArrayList<>();
-        String uuid = UUID.randomUUID().toString();
-        for (Part part : parts) {
-            if (name == null || name.equals(part.getName())) {
-                if (part.getSubmittedFileName().isEmpty()) break;
-                File file = new File("temp/" + uuid + "/" + part.getSubmittedFileName());
-                partsDir = new File("temp/" + uuid);
-                partsDir.mkdir();
-                FileOutputStream stream = new FileOutputStream(file);
-                IOUtils.write(part.getInputStream().readAllBytes(), stream);
-                stream.close();
-                list.add(new EngineFile(file, engine));
-            }
-        }
-        uploads = list;
-        return list;
-    }
-
-    public void removeParts() {
-        if (partsDir != null && partsDir.exists()) {
-            try {
-                FileUtils.forceDelete(partsDir);
-            } catch (IOException e) {
-//                Logger.logException(e);
-            }
-        }
-    }
-
-    public void addHeader(String key, String value) {
-        engine.getResponse().setHeader(key, value);
-    }
 
     public Object module(String name) throws EngineException {
-        Object object = Engine.getModule(name);
+        Object object = HttpEngine.getModule(name);
         if (object == null) throw new EngineException("Unknown module: " + name);
         if (object instanceof Class<?> apiClass) {
             if (EngineAPI.class.isAssignableFrom(apiClass)) {
                 try {
-                    Constructor<? extends EngineAPI> constructor = (Constructor<? extends EngineAPI>) apiClass.getDeclaredConstructor(engine.getClass());
+                    Constructor<? extends EngineAPI> constructor = (Constructor<? extends EngineAPI>) apiClass.getDeclaredConstructor(Engine.class);
                     EngineAPI api = constructor.newInstance(this.engine);
                     return api;
                 } catch (Exception e) {
@@ -211,5 +123,29 @@ public class EngineSystem extends EngineAPI{
 
     public String getVersion() {
         return Hammer.getVersion();
+    }
+
+    public void task(String url) throws EngineException {
+        String path = null;
+        if (url.contains("&")) {
+            path = url.substring(0, url.indexOf("&"));
+        } else {
+            path = url;
+        }
+        EngineFile file = getFile(path);
+        if (file.exists() && file.isFile()) {
+            try {
+                Engine task = new Engine(file.readString(), url, engine.getWebSite());
+                new Thread(task::execute).start();
+            } catch (Exception e) {
+                throw new EngineException(e.getMessage());
+            }
+        } else {
+            throw new EngineException("The file does not exist:" + path);
+        }
+    }
+
+    public void finish() {
+
     }
 }

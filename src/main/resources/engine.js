@@ -1,11 +1,3 @@
-const _COOKIE = System.getCookies();
-function addCookie(name, value, path = Request.getPath(), domain = Request.getDomain(), age = -1, httpOnly = false) {
-    System.putCookie(name, value, path, domain, age, httpOnly);
-}
-
-function removeCookie(name) {
-    System.putCookie(name, null, null, null, 0, false);
-}
 function print(obj) {
     System.outputScript(obj);
 }
@@ -24,16 +16,6 @@ function include(filename) {
 function getFile(filename) {
     return System.getFile(filename);
 }
-const _SESSION = {};
-function sessionStart(sec = 3600) {
-    var data = System.getSession(sec);
-    for (var key in data) {
-        _SESSION[key] = data[key];
-    }
-}
-function sessionClose() {
-    System.sessionClose();
-}
 function setStatus(code = 200) {
     System.setStatus(code);
 }
@@ -49,16 +31,13 @@ function curl(url) {
 function sleep(time) {
     System.sleep(time);
 }
-function getUploadFiles(name = null) {
-    return System.getUploadParts(name);
-}
-function addHeader(key, value) {
-    System.addHeader(key, value);
-}
 function module(name) {
     return System.module(name);
 }
 function exit(code = 200) {
     setStatus(200);
     System.stop();
+}
+function task(url) {
+    System.task(url);
 }
