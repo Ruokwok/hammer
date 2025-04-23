@@ -273,6 +273,10 @@ public class Engine {
         engine.getBindings("js").putMember("_GET", params);
     }
 
+    public int getStatus() {
+        return status;
+    }
+
     public static void registerAPI(String var, Object object) {
         apiMap.put(var, object);
     }

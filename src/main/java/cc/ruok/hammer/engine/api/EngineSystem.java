@@ -129,7 +129,12 @@ public class EngineSystem extends EngineAPI{
             try {
                 Engine task = new Engine(file.readString(), url, new Engine.NullWriter(), engine.getWebSite());
                 task.setRT(new EngineSystem(task));
-                new Thread(task::execute).start();
+                long start = System.currentTimeMillis();
+                String finalPath = path;
+                new Thread(() -> {
+                    task.execute();
+                    Logger.info("[" + engine.getWebSite().getName() + "][TASK][" + task.getStatus() + "] - " + finalPath + "(" + (System.currentTimeMillis() - start) + "ms)");
+                }).start();
             } catch (Exception e) {
                 throw new EngineException(e.getMessage());
             }
