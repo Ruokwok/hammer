@@ -127,7 +127,8 @@ public class EngineSystem extends EngineAPI{
         EngineFile file = getFile(path);
         if (file.exists() && file.isFile()) {
             try {
-                Engine task = new Engine(file.readString(), url, engine.getWebSite());
+                Engine task = new Engine(file.readString(), url, new Engine.NullWriter(), engine.getWebSite());
+                task.setRT(new EngineSystem(task));
                 new Thread(task::execute).start();
             } catch (Exception e) {
                 throw new EngineException(e.getMessage());

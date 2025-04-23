@@ -21,9 +21,8 @@ public class HttpEngine extends Engine {
     private HttpSession session;
 
     public HttpEngine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
-        super(str, req.getQueryString(), webSite);
+        super(str, req.getQueryString(), resp.getWriter(), webSite);
         this.request = new EngineRequest(req);
-        this.writer = resp.getWriter();
         this.response = resp;
         this.req = req;
         this.session = req.getSession();

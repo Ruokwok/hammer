@@ -26,26 +26,30 @@ public class Engine {
     protected PrintWriter writer;
     protected Map<String, String> outputPool = new HashMap<>();
     protected static String baseJs;
-    protected static String finishJs;
-    protected EngineSystem system = new EngineSystem(this);
+    protected EngineSystem system;
     protected ScriptWebSite webSite;
     private static HashMap<String, Object> apiMap = new HashMap<>();
     private final List<Closeable> closeable = new ArrayList<>();
 
-    public Engine(String str, String url, ScriptWebSite webSite) {
+    public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite) {
         this.str = str;
         this.url = url;
         this.webSite = webSite;
         this.script = new Script(str, this);
-        this.writer = new NullWriter();
+        this.writer = writer;
+        this.system = system;
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
-            engine.getBindings("js").putMember("System", system);
             engine.getBindings("js").putMember("_GET", getParams(url));
             engine.eval("js", baseJs);
         } catch (Exception e) {
             Logger.logException(e);
         }
+    }
+
+    public void setRT(EngineSystem system) {
+        this.system = system;
+        engine.getBindings("js").putMember("System", system);
     }
 
     public List<Content> analysis() {
@@ -283,7 +287,6 @@ public class Engine {
     public static void loadBaseJs() {
         try {
             baseJs = IOUtils.toString(HttpEngine.class.getResourceAsStream("/engine.js"), "utf8");
-            finishJs = IOUtils.toString(HttpEngine.class.getResourceAsStream("/finish.js"), "utf8");
         } catch (IOException e) {
             Logger.logException(e);
         }
