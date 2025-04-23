@@ -5,17 +5,9 @@ import cc.ruok.hammer.Logger;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.HttpEngine;
 import cc.ruok.hammer.engine.Script;
-import cc.ruok.hammer.engine.task.TaskEngine;
 import cn.hutool.json.JSONUtil;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.Part;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -127,8 +119,8 @@ public class EngineSystem extends EngineAPI{
 
     public void task(String url) throws EngineException {
         String path = null;
-        if (url.contains("&")) {
-            path = url.substring(0, url.indexOf("&"));
+        if (url.contains("?")) {
+            path = url.substring(0, url.indexOf("?"));
         } else {
             path = url;
         }

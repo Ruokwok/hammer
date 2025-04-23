@@ -31,7 +31,6 @@ public class HttpEngine extends Engine {
         try {
             engine.getBindings("js").putMember("Request", request);
             putObject(system);
-            engine.getBindings("js").putMember("_GET", getParams(req.getQueryString()));
             engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
             String base = IOUtils.toString(HttpEngine.class.getResourceAsStream("/http.js"), "utf8");
             engine.eval("js", base);

@@ -30,7 +30,7 @@ public class Engine {
     protected EngineSystem system = new EngineSystem(this);
     protected ScriptWebSite webSite;
     private static HashMap<String, Object> apiMap = new HashMap<>();
-    private final List<Closeable> closeables = new ArrayList<>();
+    private final List<Closeable> closeable = new ArrayList<>();
 
     public Engine(String str, String url, ScriptWebSite webSite) {
         this.str = str;
@@ -41,6 +41,7 @@ public class Engine {
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
             engine.getBindings("js").putMember("System", system);
+            engine.getBindings("js").putMember("_GET", getParams(url));
             engine.eval("js", baseJs);
         } catch (Exception e) {
             Logger.logException(e);
@@ -149,7 +150,6 @@ public class Engine {
             engine.eval("js", compile);
         } catch (PolyglotException e) {
             error(e);
-            e.printStackTrace();
         } finally {
             finish();
         }
@@ -193,11 +193,11 @@ public class Engine {
         return engine;
     }
     public void addCloseable(Closeable closeable) {
-        closeables.add(closeable);
+        this.closeable.add(closeable);
     }
 
     public void closeAllConnect() {
-        for (Closeable closeable : closeables) {
+        for (Closeable closeable : closeable) {
             try {
                 if (!closeable.isKeep()) {
                     closeable.close();
@@ -210,6 +210,7 @@ public class Engine {
     public Map<String, Object> getParams(String url) {
         Map<String, Object> map = new HashMap<>();
         if (url == null) return map;
+        url = url.substring(url.indexOf("?") + 1);
         String[] split = url.split("&");
         for (String s : split) {
             if (s.contains("=")) {
