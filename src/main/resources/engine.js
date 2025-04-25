@@ -40,3 +40,6 @@ function exit(code = -1) {
 function task(url, entry = null) {
     System.task(url, entry);
 }
+function setConsoleException(b = true) {
+    System.setConsoleException(b);
+}

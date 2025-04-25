@@ -32,6 +32,7 @@ public class Engine {
     private final List<Closeable> closeable = new ArrayList<>();
     private boolean running = false;
     private Object entry;
+    private boolean consoleException = false;
 
     public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite, Object entry) {
         this.str = str;
@@ -180,6 +181,7 @@ public class Engine {
     }
 
     public void error(PolyglotException e) {
+        if (consoleException) Logger.logException(e);
         StringBuilder msg = new StringBuilder(e.getMessage().replaceAll("System\\.output\\('........'\\);", ""));
         int line = 0;
         SourceSection location = e.getSourceLocation();
@@ -300,6 +302,10 @@ public class Engine {
 
     public void close() {
         this.close(-1);
+    }
+
+    public void setConsoleException(boolean b) {
+        this.consoleException = b;
     }
 
     public static void registerAPI(String var, Object object) {

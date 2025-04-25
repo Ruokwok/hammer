@@ -148,6 +148,10 @@ public class EngineSystem extends EngineAPI{
         }
     }
 
+    public void setConsoleException(boolean b) {
+        engine.setConsoleException(b);
+    }
+
     public void finish() {
 
     }
