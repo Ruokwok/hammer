@@ -122,7 +122,7 @@ public class EngineSystem extends EngineAPI{
         return Hammer.getVersion();
     }
 
-    public void task(String url) throws EngineException {
+    public void task(String url, Object entry) throws EngineException {
         String path = null;
         if (url.contains("?")) {
             path = url.substring(0, url.indexOf("?"));
@@ -132,7 +132,7 @@ public class EngineSystem extends EngineAPI{
         EngineFile file = getFile(path);
         if (file.exists() && file.isFile()) {
             try {
-                Engine task = new Engine(file.readString(), url, new Engine.NullWriter(), engine.getWebSite());
+                Engine task = new Engine(file.readString(), url, new Engine.NullWriter(), engine.getWebSite(), entry);
                 task.setRT(new EngineSystem(task));
                 long start = System.currentTimeMillis();
                 String finalPath = path;

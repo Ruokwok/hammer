@@ -37,6 +37,6 @@ function module(name) {
 function exit(code = -1) {
     System.stop(code);
 }
-function task(url) {
-    System.task(url);
+function task(url, entry = null) {
+    System.task(url, entry);
 }

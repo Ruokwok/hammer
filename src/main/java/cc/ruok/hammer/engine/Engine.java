@@ -31,14 +31,15 @@ public class Engine {
     private static HashMap<String, Object> apiMap = new HashMap<>();
     private final List<Closeable> closeable = new ArrayList<>();
     private boolean running = false;
+    private Object entry;
 
-    public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite) {
+    public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite, Object entry) {
         this.str = str;
         this.url = url;
         this.webSite = webSite;
         this.script = new Script(str, this);
         this.writer = writer;
-        this.system = system;
+        this.entry = entry;
         try {
             engine = Context.newBuilder("js").allowAllAccess(true).build();
             engine.getBindings("js").putMember("_GET", getParams(url));
@@ -46,6 +47,10 @@ public class Engine {
         } catch (Exception e) {
             Logger.logException(e);
         }
+    }
+
+    public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite) {
+        this(str, url, writer, webSite, null);
     }
 
     public void setRT(EngineSystem system) {
@@ -153,6 +158,9 @@ public class Engine {
         running = true;
         try {
             String compile = script.getCompile();
+            if (entry != null) {
+                engine.getBindings("js").putMember("_ENTRY", entry);
+            }
             engine.eval("js", compile);
         } catch (PolyglotException e) {
             if (running) error(e);
