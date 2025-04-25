@@ -30,6 +30,7 @@ public class Engine {
     protected ScriptWebSite webSite;
     private static HashMap<String, Object> apiMap = new HashMap<>();
     private final List<Closeable> closeable = new ArrayList<>();
+    private boolean running = false;
 
     public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite) {
         this.str = str;
@@ -149,13 +150,19 @@ public class Engine {
     }
 
     public void execute() {
+        running = true;
         try {
             String compile = script.getCompile();
             engine.eval("js", compile);
         } catch (PolyglotException e) {
-            error(e);
+            if (running) error(e);
+        } catch (IllegalStateException e) {
+            running = false;
         } finally {
-            finish();
+            if (running) {
+                finish();
+                running = false;
+            }
         }
     }
 
@@ -277,6 +284,16 @@ public class Engine {
         return status;
     }
 
+    public void close(int code) {
+        if (code >= 0) setStatus(code);
+        running = false;
+        engine.close();
+    }
+
+    public void close() {
+        this.close(-1);
+    }
+
     public static void registerAPI(String var, Object object) {
         apiMap.put(var, object);
     }
@@ -294,6 +311,10 @@ public class Engine {
         } catch (IOException e) {
             Logger.logException(e);
         }
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public static class NullWriter extends PrintWriter {

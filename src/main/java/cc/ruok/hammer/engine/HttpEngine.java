@@ -45,11 +45,11 @@ public class HttpEngine extends Engine {
     @Override
     public void execute() {
         super.execute();
-        engine.eval("js", "System.saveSession(_SESSION);");
     }
 
     public void finish() {
         closeAllConnect();
+        engine.eval("js", "System.saveSession(_SESSION);");
     }
 
     public Map<String, Object> getSessionData() {

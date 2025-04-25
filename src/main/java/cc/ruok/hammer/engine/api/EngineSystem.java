@@ -6,6 +6,7 @@ import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.HttpEngine;
 import cc.ruok.hammer.engine.Script;
 import cn.hutool.json.JSONUtil;
+import org.graalvm.polyglot.Context;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -108,9 +109,13 @@ public class EngineSystem extends EngineAPI{
         return null;
     }
 
-    public void stop() throws EngineException {
-        //TODO 待完善，目前没有好的方法结束脚本，只能先抛异常处理
-        throw new EngineException("script stop.");
+    public void stop(int code) throws EngineException {
+        engine.finish();
+        if (code == -1) {
+            engine.close();
+        } else {
+            engine.close(code);
+        }
     }
 
     public String getVersion() {

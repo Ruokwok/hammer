@@ -34,9 +34,8 @@ function sleep(time) {
 function module(name) {
     return System.module(name);
 }
-function exit(code = 200) {
-    setStatus(200);
-    System.stop();
+function exit(code = -1) {
+    System.stop(code);
 }
 function task(url) {
     System.task(url);
