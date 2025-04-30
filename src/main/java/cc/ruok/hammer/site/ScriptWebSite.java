@@ -1,7 +1,10 @@
 package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.*;
+import cc.ruok.hammer.engine.CronTask;
 import cc.ruok.hammer.engine.HttpEngine;
+import cc.ruok.hammer.engine.api.EngineException;
+import cn.hutool.cron.CronUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +15,7 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -20,6 +24,7 @@ public class ScriptWebSite extends WebSite {
 
     public HashMap<String, ComboPooledDataSource> pool = new HashMap<>();
     public Hashtable<String, Object> cache;
+    private ArrayList<String> scheduleId;
 
     public ScriptWebSite(Config config) {
         super(config);
@@ -103,12 +108,33 @@ public class ScriptWebSite extends WebSite {
                 }
             }
         }
+        if (config.tasks != null) {
+            scheduleId = new ArrayList<>();
+            for (Map.Entry<String, Config.Task> entry : config.tasks.entrySet()) {
+                Config.Task task = entry.getValue();
+                try {
+                    String sid = CronUtil.schedule(task.cron, new CronTask(task.script, this));
+                    scheduleId.add(sid);
+                } catch (EngineException e) {
+                    Logger.logException(e);
+                }
+            }
+        }
+    }
+
+    public boolean hasCron() {
+        return scheduleId != null;
     }
 
     @Override
     public void disable() {
         for (Map.Entry<String, ComboPooledDataSource> entry : pool.entrySet()) {
             entry.getValue().close();
+        }
+        if (scheduleId != null) {
+            for (String sid : scheduleId) {
+                CronUtil.remove(sid);
+            }
         }
         super.disable();
     }

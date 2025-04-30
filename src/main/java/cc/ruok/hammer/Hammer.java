@@ -4,7 +4,10 @@ import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.plugin.HammerPlugin;
 import cc.ruok.hammer.plugin.PluginManager;
+import cc.ruok.hammer.site.ScriptWebSite;
+import cc.ruok.hammer.site.WebSite;
 import cn.hutool.core.util.XmlUtil;
+import cn.hutool.cron.CronUtil;
 import cn.hutool.setting.yaml.YamlUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -59,6 +62,7 @@ public class Hammer {
             WebServer.loadAll();
             WebServer server = WebServer.getInstance();
             startConfigWatchdog();
+            startCronScheduler();
             server.start();
             Logger.info("Hammer is stopped.");
         } catch (Exception e) {
@@ -120,6 +124,7 @@ public class Hammer {
         Logger.info("Stopping server...");
         try {
             WebServer.unloadAll();
+            CronUtil.stop();
             new File(PROCESS_PATH).delete();
             WebServer.getInstance().stop();
             for (HammerPlugin plugin : new ArrayList<>(PluginManager.list)) {
@@ -150,6 +155,25 @@ public class Hammer {
             Logger.error("The js module is not installed, please install it and try again.");
             Logger.error("If you using GraalVM, please try execute command: gu install js");
             System.exit(1);
+        }
+    }
+
+    public static void startCronScheduler() {
+        WebServer server = WebServer.getInstance();
+        Map<String, WebSite> sites = server.getSites();
+        boolean cron = false;
+        for (WebSite site : sites.values()) {
+            if (site instanceof ScriptWebSite s) {
+                if (s.hasCron()) {
+                    cron = true;
+                    break;
+                }
+            }
+        }
+        if (cron) {
+            CronUtil.setMatchSecond(true);
+            CronUtil.start();
+            Logger.info("Start CRON scheduler.");
         }
     }
 

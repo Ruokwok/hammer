@@ -20,6 +20,7 @@ public class Config {
     public List<String> pseudo_static;
     public HashMap<String, DatabasePool> database_pool;
     public List<String> protects;
+    public HashMap<String, Task> tasks;
 
     public File getFile() {
         return file;
@@ -39,5 +40,12 @@ public class Config {
         public int max_size = 20;
         public int max_idle_time = 3600;
         public int idle_conn_test = 1800;
+    }
+
+    public static class Task {
+
+        public String cron;
+        public String script;
+
     }
 }
