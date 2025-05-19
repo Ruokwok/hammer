@@ -17,6 +17,14 @@ public class EngineLog extends EngineAPI {
         Logger.warning("[" + engine.getWebSite().getName() + "]" + object.toString());
     }
 
+    public void debug(Object object) {
+        Logger.debug("[" + engine.getWebSite().getName() + "]" + object.toString());
+    }
+
+    public void error(Object object) {
+        Logger.error("[" + engine.getWebSite().getName() + "]" + object.toString());
+    }
+
     @Override
     public String getVarName() {
         return "Log";
