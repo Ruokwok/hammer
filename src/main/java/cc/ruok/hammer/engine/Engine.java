@@ -189,7 +189,7 @@ public class Engine {
         if (line == 0) {
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (StackTraceElement st : stackTrace) {
-                if (st.getClassName().equals("<js>") && st.getMethodName().equals(":program")) {
+                if (st.getClassName().equals("<js>")) {
                     line = st.getLineNumber();
                     break;
                 }
