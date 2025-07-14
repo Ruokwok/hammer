@@ -31,7 +31,7 @@ public class EngineHttp extends EngineAPI {
                     request.cookie(cookie);
                 }
             }
-            return new Response(request.execute());
+            return new Response(request.execute(), engine);
         } catch (Exception e) {
             throw new EngineException(e);
         }
@@ -69,7 +69,7 @@ public class EngineHttp extends EngineAPI {
                     request.cookie(cookie);
                 }
             }
-            return new Response(request.execute());
+            return new Response(request.execute(), engine);
         } catch (Exception e) {
             throw new EngineException(e);
         }
@@ -103,7 +103,7 @@ public class EngineHttp extends EngineAPI {
                     request.cookie(cookie);
                 }
             }
-            return new Response(request.execute());
+            return new Response(request.execute(), engine);
         } catch (Exception e) {
             throw new EngineException(e);
         }
@@ -149,9 +149,11 @@ public class EngineHttp extends EngineAPI {
     public static class Response {
 
         private HttpResponse response;
+        private Engine engine;
 
-        public Response(HttpResponse response) {
+        public Response(HttpResponse response, Engine engine) {
             this.response = response;
+            this.engine = engine;
         }
 
         public int code() {
@@ -160,6 +162,10 @@ public class EngineHttp extends EngineAPI {
 
         public String body() {
             return response.body();
+        }
+
+        public EngineData data() {
+            return new EngineData(response.bodyBytes(), engine);
         }
 
         public String header(String name) {
