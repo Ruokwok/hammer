@@ -53,6 +53,7 @@ public class PseudoStatic {
     public boolean match(String url) {
         if (url.equals(origin)) return true;
         if (spl == null) return false;
+        if (!url.startsWith(spl.get(0))) return false;
         int i = 0;
         for (String s : spl) {
             if (url.contains(s)) {
