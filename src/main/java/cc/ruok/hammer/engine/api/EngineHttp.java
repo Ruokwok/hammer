@@ -53,10 +53,11 @@ public class EngineHttp extends EngineAPI {
         return get(url, null, null, 5000);
     }
 
-    public Response post(String url, Map<String, Object> params, Map<String, String> header, Map<String, String> cookies, int timeout) throws EngineException {
+    public Response post(String url, String data, Map<String, Object> params, Map<String, String> header, Map<String, String> cookies, int timeout) throws EngineException {
         try {
             HttpRequest request = HttpRequest.post(url);
             request.setConnectionTimeout(timeout);
+            request.body(data);
             if (params != null) request.form(params);
             if (header != null && header.size() > 0) {
                 for (Map.Entry<String, String> entry: header.entrySet()) {
@@ -75,16 +76,16 @@ public class EngineHttp extends EngineAPI {
         }
     }
 
-    public Response post(String url, Map<String, Object> params, Map<String, String> header, Map<String, String> cookies) throws EngineException {
-        return post(url, params, header, cookies, 5000);
+    public Response post(String url, String data, Map<String, Object> params, Map<String, String> header, Map<String, String> cookies) throws EngineException {
+        return post(url, data, params, header, cookies, 5000);
     }
 
     public Response post(String url, Map<String, Object> params, Map<String, String> header) throws EngineException {
-        return post(url, params, header, null, 5000);
+        return post(url, null, params, header, null, 5000);
     }
 
     public Response post(String url, Map<String, Object> params) throws EngineException {
-        return post(url, params, null, null, 5000);
+        return post(url, null, params, null, null, 5000);
     }
 
     public Response post(String url, String data, Map<String, String> header, Map<String, String> cookies, int timeout) throws EngineException {
