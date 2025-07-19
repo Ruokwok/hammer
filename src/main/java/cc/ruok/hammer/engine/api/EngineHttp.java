@@ -3,6 +3,7 @@ package cc.ruok.hammer.engine.api;
 import cc.ruok.hammer.engine.Engine;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.Method;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
@@ -142,6 +143,10 @@ public class EngineHttp extends EngineAPI {
         return ec;
     }
 
+    public Request request(String url) {
+        return new Request(url, engine);
+    }
+
     @Override
     public String getVarName() {
         return "Http";
@@ -200,5 +205,72 @@ public class EngineHttp extends EngineAPI {
         public String toString() {
             return body();
         }
+    }
+
+    public static class Request {
+
+        private Engine engine;
+        private int timeout = 5000;
+        private Map<String, Object> params;
+        private Map<String, String> header;
+        private Map<String, String> cookies;
+        private String body;
+        private HttpRequest request;
+
+        public Request(String url, Engine engine) {
+            this.engine = engine;
+            this.request = HttpRequest.get(url);
+        }
+
+        public void setMethod(String method) {
+            request.setMethod(Method.valueOf( method));
+        }
+
+        public void setTimeout(int timeout) {
+            this.timeout = timeout;
+        }
+
+        public void setParams(Map<String, Object> params) {
+            this.params = params;
+        }
+
+        public void setHeader(Map<String, String> header) {
+            this.header = header;
+        }
+
+        public void setCookies(Map<String, String> cookies) {
+            this.cookies = cookies;
+        }
+
+        public void setBody(String body) {
+            this.body = body;
+        }
+
+        public void setUrl(String url) {
+            this.request.setUrl(url);
+        }
+
+        public Response exec() throws EngineException {
+            try {
+                request.setConnectionTimeout(timeout);
+                request.body(body);
+                if (params != null) request.form(params);
+                if (header != null && header.size() > 0) {
+                    for (Map.Entry<String, String> entry: header.entrySet()) {
+                        request.header(entry.getKey(), entry.getValue());
+                    }
+                }
+                if (cookies != null && cookies.size() > 0) {
+                    for (Map.Entry<String, String> entry: cookies.entrySet()) {
+                        HttpCookie cookie = new HttpCookie(entry.getKey(), entry.getValue());
+                        request.cookie(cookie);
+                    }
+                }
+                return new Response(request.execute(), engine);
+            } catch (Exception e) {
+                throw new EngineException(e);
+            }
+        }
+
     }
 }
