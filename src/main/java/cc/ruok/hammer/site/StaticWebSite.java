@@ -29,8 +29,6 @@ public class StaticWebSite extends WebSite {
             resp.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
         }
 //            resp.getWriter().println(FileUtils.readFileToString(file, "utf-8"));
-        FileInputStream inputStream = new FileInputStream(file);
-        IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
-        inputStream.close();
+        input(file, resp.getOutputStream());
     }
 }

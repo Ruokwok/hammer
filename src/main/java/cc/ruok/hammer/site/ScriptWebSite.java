@@ -48,12 +48,10 @@ public class ScriptWebSite extends WebSite {
                         " - " + req.getRequestURI() + "(" + (end - start) + "ms)");
 
             } else {
-                FileInputStream inputStream = new FileInputStream(file);
-                IOUtils.write(inputStream.readAllBytes(), resp.getOutputStream());
+                input(file, resp.getOutputStream());
                 Logger.info("[" + getName() + "][" + req.getMethod() + "][" + resp.getStatus() + "]" +
                         req.getRemoteAddr() +
                         " - " + req.getRequestURI());
-                inputStream.close();
             }
     }
 

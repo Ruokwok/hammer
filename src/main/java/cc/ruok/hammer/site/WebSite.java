@@ -10,9 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -166,6 +164,17 @@ public abstract class WebSite {
             if (path.startsWith(exp)) return true;
         }
         return false;
+    }
+
+    public static void input(File file, OutputStream os) throws IOException {
+        FileInputStream inputStream = new FileInputStream(file);
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            os.write(buffer, 0, bytesRead);
+        }
+        os.flush();
+        inputStream.close();
     }
 
     public abstract void execute(File file, HttpServletRequest req, HttpServletResponse resp) throws IOException;
