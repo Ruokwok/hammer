@@ -126,8 +126,8 @@ public abstract class WebSite {
                 resp.setStatus(500);
                 resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.getVersion()));
             }
-        } catch (Exception e) {
-            Logger.logException(e);
+        } catch (Throwable e) {
+            Logger.logException(new RuntimeException(e));
             resp.setStatus(500);
             resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.getVersion()));
         }
