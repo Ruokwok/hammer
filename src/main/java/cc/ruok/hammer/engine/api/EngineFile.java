@@ -115,6 +115,16 @@ public class EngineFile {
         }
     }
 
+    public boolean mkdir() throws EngineException {
+        if (!write) throw new EngineException("no permission.");
+        try {
+            FileUtils.forceMkdir(file);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     public boolean delete() throws EngineException {
         if (!write) throw new EngineException("no permission.");
         return FileUtils.deleteQuietly(file);
