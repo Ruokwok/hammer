@@ -26,7 +26,8 @@ public class EngineZipUtil extends EngineAPI implements Closeable {
     }
 
     public void load(EngineFile file) throws IOException {
-        this.load(engine.getWebSite().getPath() + "/" +  file.file);
+        this.zipFile = new ZipFile(file.file);
+        engine.addCloseable(this);
     }
 
     public List<String> list() {
