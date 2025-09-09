@@ -269,7 +269,13 @@ public class Engine {
     }
 
     public void outputScript(String str) {
-        writer.print(str);
+        if (str != null && !str.isEmpty()) {
+            if (Character.isWhitespace(str.charAt(str.length() - 1))) {
+                writer.print(str.substring(0, str.length() - 1));
+            } else {
+                writer.print(str);
+            }
+        }
     }
 
     public void putOutput(String key, String value) {
