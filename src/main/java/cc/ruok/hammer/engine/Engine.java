@@ -169,7 +169,7 @@ public class Engine {
             running = false;
         } finally {
             if (running) {
-                finish();
+                this.finish();
                 running = false;
             }
         }

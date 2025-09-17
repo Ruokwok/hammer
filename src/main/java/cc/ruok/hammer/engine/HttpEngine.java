@@ -48,7 +48,7 @@ public class HttpEngine extends Engine {
     }
 
     public void finish() {
-        closeAllConnect();
+       super.finish();
         engine.eval("js", "System.saveSession(_SESSION);");
     }
 
