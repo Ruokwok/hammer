@@ -26,5 +26,6 @@ public abstract class EngineAPI {
         Engine.registerAPI("Log", EngineLog.class);
         Engine.registerAPI("Cache", EngineCache.class);
         Engine.registerAPI("ZipUtil", EngineZipUtil.class);
+        Engine.registerAPI("Values", EngineValues.class);
     }
 }

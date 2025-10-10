@@ -21,6 +21,7 @@ public class Config {
     public HashMap<String, DatabasePool> database_pool;
     public List<String> protects;
     public HashMap<String, Task> tasks;
+    public HashMap<String, Object> values = new HashMap<>();
 
     public File getFile() {
         return file;

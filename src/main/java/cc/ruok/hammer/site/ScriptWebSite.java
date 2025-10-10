@@ -4,6 +4,7 @@ import cc.ruok.hammer.*;
 import cc.ruok.hammer.engine.CronTask;
 import cc.ruok.hammer.engine.HttpEngine;
 import cc.ruok.hammer.engine.api.EngineException;
+import cc.ruok.hammer.engine.api.EngineValues;
 import cn.hutool.cron.CronUtil;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -135,5 +136,9 @@ public class ScriptWebSite extends WebSite {
             }
         }
         super.disable();
+    }
+
+    public HashMap<String, Object> getValues() {
+        return config.values;
     }
 }
