@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class EngineFile {
 
@@ -37,6 +38,21 @@ public class EngineFile {
 
     public boolean isFile() {
         return file.isFile();
+    }
+
+    public ArrayList<EngineFile> list() throws EngineException {
+        if (!read) throw new EngineException("no permission.");
+        File[] files = file.listFiles();
+        if (files == null) return null;
+        ArrayList<EngineFile> list = new ArrayList<>();
+        for (File f : files) {
+            list.add(new EngineFile(f, engine));
+        }
+        return list;
+    }
+
+    public String getSitePath() {
+        return FileUtil.getAbsolutePath(file).substring(FileUtil.getAbsolutePath(engine.getWebSite().getPath()).length());
     }
 
     public boolean isDir() {
