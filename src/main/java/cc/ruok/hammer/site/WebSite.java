@@ -2,7 +2,6 @@ package cc.ruok.hammer.site;
 
 import cc.ruok.hammer.*;
 import cc.ruok.hammer.error.Http403Exception;
-import cc.ruok.hammer.error.Http404Exception;
 import cc.ruok.hammer.error.Http500Exception;
 import cc.ruok.hammer.error.HttpException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,14 +10,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 public abstract class WebSite {
 
     Config config;
     File path;
-    public HashMap<String, PseudoStatic> pseudoStaticMap = new HashMap<>();
+    public ArrayList<PseudoStatic> pseudoStaticList = new ArrayList<>();
 
     public WebSite(Config config) {
         if (config == null) return;
@@ -73,14 +71,14 @@ public abstract class WebSite {
         if (config.pseudo_static != null && config.pseudo_static.size() > 0) {
             for (String exp : config.pseudo_static) {
                 PseudoStatic pseudoStatic = new PseudoStatic(exp);
-                if (pseudoStatic.isValid()) pseudoStaticMap.put(pseudoStatic.getOrigin(), pseudoStatic);
+                if (pseudoStatic.isValid()) pseudoStaticList.add(pseudoStatic);
             }
         }
         Logger.info("Enabled website: " + config.name + "(" + config.type + ").");
     }
 
     public void disable() {
-        pseudoStaticMap.clear();
+        pseudoStaticList.clear();
         WebServer.unload(config.getFile());
     }
 
@@ -147,8 +145,8 @@ public abstract class WebSite {
     }
 
     protected String filter(String url) {
-        for (Map.Entry<String, PseudoStatic> entry : pseudoStaticMap.entrySet()) {
-            String target = entry.getValue().handler(url);
+        for (PseudoStatic pseudoStatic : pseudoStaticList) {
+            String target = pseudoStatic.handler(url);
             if (target != null) {
                 return target;
             }
