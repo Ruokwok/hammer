@@ -16,7 +16,7 @@ Hammer是一款Java实现的基于Jetty的Web服务器，通过Graal.js引擎支
 ## 安装
 在Linux系统上，可以安装Hammer Manager管理服务，一键安装命令如下:
 ```shell
-sudo curl -O https://repo.starelement.net/download/install.sh && chmod 755 install.sh && sudo bash install.sh 
+sudo curl -O https://hmr.starelement.net/install.sh && chmod 755 install.sh && sudo bash install.sh 
 ```
 - 确保拥有执行权限
 
