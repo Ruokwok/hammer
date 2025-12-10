@@ -71,7 +71,6 @@ elif [ "$1" == "status" ] || [ "$1" == "-s" ]; then
 	if [ $PID == 0 ]; then
 		notrun
 	else
-		echo $TOKEN
 		echo -e "The hammer is running"
 		echo -e "path:$ROOT_PATH"
 		curl -H "Host: console..cmd" -H "Token: $TOKEN" localhost:$PORT/status
