@@ -16,6 +16,7 @@ public class HammerConfig {
 
     public int httpPort;
     public int httpsPort;
+    public int contextPoolSize = Math.max(8, Runtime.getRuntime().availableProcessors() * 2);
     public ArrayList<String> scriptFileTypes = new ArrayList<>();
     public HashMap<String, String> fileHeader = new HashMap<>();
 

@@ -13,6 +13,10 @@ Hammer是一款Java实现的基于Jetty的Web服务器，通过Graal.js引擎支
 
 `gu install js`
 
+### 性能配置
+主配置文件`server.yml`中的`contextPoolSize`用于设置JavaScript上下文池大小，默认值为`max(8, CPU核数 * 2)`。
+增大该值可以提升脚本并发处理能力，但会占用更多内存，修改后需重启服务器。
+
 ## 安装
 在Linux系统上，可以安装Hammer Manager管理服务，一键安装命令如下:
 ```shell

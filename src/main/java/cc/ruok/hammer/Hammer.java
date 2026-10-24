@@ -1,5 +1,6 @@
 package cc.ruok.hammer;
 
+import cc.ruok.hammer.engine.ContextPool;
 import cc.ruok.hammer.engine.Engine;
 import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.plugin.HammerPlugin;
@@ -57,6 +58,7 @@ public class Hammer {
             config = HammerConfig.load();
             init(args);
             Engine.loadBaseJs();
+            ContextPool.init(config.contextPoolSize);
             EngineAPI.registerDefault();
             PluginManager.loadAll();
             WebServer.loadAll();
@@ -127,6 +129,7 @@ public class Hammer {
             CronUtil.stop();
             new File(PROCESS_PATH).delete();
             WebServer.getInstance().stop();
+            ContextPool.close();
             for (HammerPlugin plugin : new ArrayList<>(PluginManager.list)) {
                 PluginManager.unload(plugin);
             }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
+import org.graalvm.polyglot.Source;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class HttpEngine extends Engine {
     private HttpServletRequest req;
     private HttpServletResponse response;
     private HttpSession session;
+    private static volatile Source httpSource;
 
     public HttpEngine(String str, HttpServletRequest req, HttpServletResponse resp, ScriptWebSite webSite) throws IOException {
         this(str, req, resp, webSite, false);
@@ -35,8 +37,7 @@ public class HttpEngine extends Engine {
             engine.getBindings("js").putMember("Request", request);
             putObject(system);
             engine.getBindings("js").putMember("_POST", getParams(getPostData(req)));
-            String base = IOUtils.toString(HttpEngine.class.getResourceAsStream("/http.js"), "utf8");
-            engine.eval("js", base);
+            engine.eval(getHttpSource());
         } catch (Exception e) {
             Logger.logException(e);
         }
@@ -44,6 +45,21 @@ public class HttpEngine extends Engine {
 
     public HttpEngine(String script) throws IOException {
         this(script, null, null, null);
+    }
+
+    private static Source getHttpSource() throws IOException {
+        Source source = httpSource;
+        if (source == null) {
+            synchronized (HttpEngine.class) {
+                source = httpSource;
+                if (source == null) {
+                    String base = IOUtils.toString(HttpEngine.class.getResourceAsStream("/http.js"), "utf8");
+                    source = Source.create("js", base);
+                    httpSource = source;
+                }
+            }
+        }
+        return source;
     }
 
     @Override

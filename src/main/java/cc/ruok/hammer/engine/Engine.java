@@ -9,7 +9,9 @@ import cc.ruok.hammer.site.ScriptWebSite;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.SourceSection;
+import org.graalvm.polyglot.Value;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,7 +28,10 @@ public class Engine {
     protected PrintWriter writer;
     protected Map<String, String> outputPool = new HashMap<>();
     protected static String baseJs;
+    protected static Source baseSource;
     protected EngineSystem system;
+    private ContextPool.Lease contextLease;
+    private boolean wrapScript;
     protected ScriptWebSite webSite;
     private static HashMap<String, Object> apiMap = new HashMap<>();
     private final List<Closeable> closeable = new ArrayList<>();
@@ -45,13 +50,43 @@ public class Engine {
         this.script = new Script(str, this, fullScript);
         this.writer = writer;
         this.entry = entry;
+        this.wrapScript = !usesInclude(str);
         try {
-            engine = Context.newBuilder("js").allowAllAccess(true).build();
-            engine.getBindings("js").putMember("_GET", getParams(url));
-            engine.eval("js", baseJs);
+            contextLease = ContextPool.getInstance().acquire();
+            engine = contextLease.getContext();
+            resetContext();
         } catch (Exception e) {
             Logger.logException(e);
+            releaseContext(false);
         }
+    }
+
+    private static boolean usesInclude(String str) {
+        int index = str.indexOf("include");
+        while (index >= 0) {
+            int next = index + "include".length();
+            while (next < str.length() && Character.isWhitespace(str.charAt(next))) next++;
+            if (next < str.length() && str.charAt(next) == '(') return true;
+            index = str.indexOf("include", index + "include".length());
+        }
+        return false;
+    }
+
+    private void resetContext() {
+        Value bindings = engine.getBindings("js");
+        for (String key : new String[]{"_ENTRY", "Request", "_POST", "System"}) {
+            try {
+                if (bindings.hasMember(key)) bindings.removeMember(key);
+            } catch (Exception ignored) {
+            }
+        }
+        bindings.putMember("_GET", getParams(url));
+        if (baseSource != null) {
+            engine.eval(baseSource);
+        } else {
+            engine.eval("js", baseJs);
+        }
+        engine.eval("js", "var _COOKIE = undefined; var _SESSION = undefined;");
     }
 
     public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite) {
@@ -160,23 +195,55 @@ public class Engine {
     }
 
     public void execute() {
+        if (contextLease == null || engine == null) return;
         running = true;
+        Set<String> before = null;
+        if (wrapScript && !contextLease.isClosed()) {
+            try {
+                before = new HashSet<>(engine.getBindings("js").getMemberKeys());
+            } catch (Exception e) {
+                Logger.logException(e);
+            }
+        }
         try {
             String compile = script.getCompile();
             if (entry != null) {
                 engine.getBindings("js").putMember("_ENTRY", entry);
             }
-            engine.eval("js", compile);
+            if (wrapScript) {
+                engine.eval("js", "(function(){" + compile + "\n}).call(globalThis);");
+            } else {
+                engine.eval("js", compile);
+            }
         } catch (PolyglotException e) {
             if (running) error(e);
         } catch (IllegalStateException e) {
             running = false;
         } finally {
-            if (running) {
-                this.finish();
-                running = false;
+            try {
+                if (running) {
+                    this.finish();
+                    running = false;
+                }
+            } finally {
+                releaseContext(wrapScript && !isContextDirty(before));
             }
         }
+    }
+
+    private boolean isContextDirty(Set<String> before) {
+        if (before == null || contextLease == null || contextLease.isClosed()) return true;
+        try {
+            return !before.equals(new HashSet<>(engine.getBindings("js").getMemberKeys()));
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
+    private void releaseContext(boolean reusable) {
+        if (contextLease == null) return;
+        contextLease.release(reusable);
+        contextLease = null;
     }
 
     public void finish() {
@@ -307,7 +374,7 @@ public class Engine {
     public void close(int code) {
         if (code >= 0) setStatus(code);
         running = false;
-        engine.close();
+        if (contextLease != null) contextLease.closeContext();
     }
 
     public void close() {
@@ -332,6 +399,7 @@ public class Engine {
     public static void loadBaseJs() {
         try {
             baseJs = IOUtils.toString(HttpEngine.class.getResourceAsStream("/engine.js"), "utf8");
+            baseSource = Source.create("js", baseJs);
         } catch (IOException e) {
             Logger.logException(e);
         }

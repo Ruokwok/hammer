@@ -1,5 +1,5 @@
-const _COOKIE = System.getCookies();
-const _SESSION = {};
+var _COOKIE = System.getCookies();
+var _SESSION = {};
 function addCookie(name, value, path = Request.getPath(), domain = Request.getDomain(), age = -1, httpOnly = false) {
     System.putCookie(name, value, path, domain, age, httpOnly);
 }
