@@ -41,7 +41,7 @@ public class WebServlet extends HttpServlet {
         if (filetype.contains(".")) {
             String[] split = filetype.split("\\.");
             filetype = split[split.length - 1];
-            if (Hammer.config.scriptFileTypes.contains(filetype)) return "text/html";
+            if (Hammer.config.scriptFileTypes.contains(filetype) || filetype.equalsIgnoreCase("hspx")) return "text/html";
             if (Hammer.config.fileHeader.containsKey(filetype)) {
                 return Hammer.config.fileHeader.get(filetype);
             }

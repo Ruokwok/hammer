@@ -3,6 +3,7 @@ package cc.ruok.hammer.site;
 import cc.ruok.hammer.*;
 import cc.ruok.hammer.engine.CronTask;
 import cc.ruok.hammer.engine.HttpEngine;
+import cc.ruok.hammer.engine.Script;
 import cc.ruok.hammer.engine.api.EngineException;
 import cc.ruok.hammer.engine.api.EngineValues;
 import cn.hutool.cron.CronUtil;
@@ -36,9 +37,10 @@ public class ScriptWebSite extends WebSite {
             long start = System.currentTimeMillis();
             String filter = filter(req.getServletPath());
             String extensions = getExtensions(file.getName());
-            if (Hammer.config.scriptFileTypes.contains(extensions)) {
+            boolean fullScript = Script.isFullScript(file.getName());
+            if (Hammer.config.scriptFileTypes.contains(extensions) || fullScript) {
                 String script = FileUtils.readFileToString(file, "utf-8");
-                HttpEngine e = new HttpEngine(script, req, resp, this);
+                HttpEngine e = new HttpEngine(script, req, resp, this, fullScript);
                 WebServer.getInstance().putThreadSite(this);
                 if (filter != null) e.setQueryUrl(filter);
                 e.execute();

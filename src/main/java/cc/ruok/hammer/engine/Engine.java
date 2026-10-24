@@ -35,10 +35,14 @@ public class Engine {
     private boolean consoleException = false;
 
     public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite, Object entry) {
+        this(str, url, writer, webSite, entry, false);
+    }
+
+    public Engine(String str, String url, PrintWriter writer, ScriptWebSite webSite, Object entry, boolean fullScript) {
         this.str = str;
         this.url = url;
         this.webSite = webSite;
-        this.script = new Script(str, this);
+        this.script = new Script(str, this, fullScript);
         this.writer = writer;
         this.entry = entry;
         try {

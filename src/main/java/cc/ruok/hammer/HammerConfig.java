@@ -35,6 +35,7 @@ public class HammerConfig {
             config.httpsPort = 443;
             config.scriptFileTypes.add("hsp");
             config.scriptFileTypes.add("hs");
+            config.scriptFileTypes.add("hspx");
             config.fileHeader.put("apk", "application/vnd.android.package-archive");
             config.fileHeader.put("css", "text/css");
             config.fileHeader.put("gif", "image/gif");

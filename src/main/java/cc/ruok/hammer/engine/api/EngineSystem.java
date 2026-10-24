@@ -60,7 +60,7 @@ public class EngineSystem extends EngineAPI{
         } else {
             includeList.add(file);
             if (file.endsWith(".js")) engine.getContext().eval("js", str);
-            Script script = new Script(str, engine);
+            Script script = new Script(str, engine, Script.isFullScript(file));
             String compile = script.getCompile();
             engine.getContext().eval("js", compile);
         }
@@ -132,7 +132,7 @@ public class EngineSystem extends EngineAPI{
         EngineFile file = getFile(path);
         if (file.exists() && file.isFile()) {
             try {
-                Engine task = new Engine(file.readString(), url, new Engine.NullWriter(), engine.getWebSite(), entry);
+                Engine task = new Engine(file.readString(), url, new Engine.NullWriter(), engine.getWebSite(), entry, Script.isFullScript(path));
                 task.setRT(new EngineSystem(task));
                 long start = System.currentTimeMillis();
                 String finalPath = path;

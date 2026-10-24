@@ -34,7 +34,7 @@ public class CronTask implements Task {
     public void execute() {
         try {
             String str = FileUtil.readString(file, "utf-8");
-            Engine task = new Engine(str, url, new Engine.NullWriter(), site, null);
+            Engine task = new Engine(str, url, new Engine.NullWriter(), site, null, Script.isFullScript(file.getName()));
             task.setRT(new EngineSystem(task));
             long start = System.currentTimeMillis();
             task.execute();

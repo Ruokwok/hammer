@@ -9,12 +9,28 @@ public class Script {
     private Engine engine;
 
     public Script(String str, Engine engine) {
+        this(str, engine, false);
+    }
+
+    public Script(String str, Engine engine, boolean fullScript) {
         this.engine = engine;
-        analysis(str);
+        analysis(str, fullScript);
         this.compile = compile();
     }
 
+    public static boolean isFullScript(String filename) {
+        return filename != null && filename.toLowerCase().endsWith(".hspx");
+    }
+
     public void analysis(String script) {
+        analysis(script, false);
+    }
+
+    public void analysis(String script, boolean fullScript) {
+        if (fullScript) {
+            list.add(new Content(script, true));
+            return;
+        }
         if (!script.contains("<?hsp")) {
             list.add(new Content(script, false));
             return;
