@@ -119,10 +119,10 @@ public class WebServer {
     }
 
     public static void load(File yml) throws IOException {
-        WebSite ws = getInstance().getWebSiteByConfig(yml.getName());
-        if (ws != null) ws.disable();
         Config config = YamlUtil.load(new FileReader(yml), Config.class);
         config.setFile(yml);
+        WebSite ws = getInstance().getWebSiteByConfig(yml.getName());
+        if (ws != null) ws.disable();
         WebSite site = null;
         if (config.ssl_keystore != null) {
             WebServer.getInstance().addSSL(config.ssl_keystore, config.ssl_password);
@@ -144,7 +144,7 @@ public class WebServer {
             if (file.isFile() && file.getName().endsWith(".yml")) {
                 try {
                     load(file);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Logger.logException(e);
                 }
             }

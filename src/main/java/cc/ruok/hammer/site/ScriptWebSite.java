@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 
 public class ScriptWebSite extends WebSite {
 
@@ -92,17 +93,47 @@ public class ScriptWebSite extends WebSite {
         if (config.database_pool != null) {
             for (Map.Entry<String, Config.DatabasePool> entry : config.database_pool.entrySet()) {
                 ComboPooledDataSource cpds = new ComboPooledDataSource();
+                Config.DatabasePool databasePool = entry.getValue();
                 try {
                     cpds.setDriverClass("com.mysql.cj.jdbc.Driver");
-                    cpds.setJdbcUrl("jdbc:" + entry.getValue().url);
-                    cpds.setUser(entry.getValue().username);
-                    cpds.setPassword(entry.getValue().password);
-                    cpds.setIdleConnectionTestPeriod(entry.getValue().idle_conn_test);
-                    cpds.setMaxIdleTime(entry.getValue().max_idle_time);
-                    cpds.setMaxPoolSize(entry.getValue().max_size);
-                    cpds.setInitialPoolSize(entry.getValue().init_size);
-                    cpds.setMinPoolSize(entry.getValue().min_size);
+                    cpds.setJdbcUrl("jdbc:" + databasePool.url);
+                    cpds.setUser(databasePool.username);
+                    cpds.setPassword(databasePool.password);
+                    cpds.setIdleConnectionTestPeriod(databasePool.idle_conn_test);
+                    cpds.setMaxIdleTime(databasePool.max_idle_time);
+                    cpds.setMaxPoolSize(databasePool.max_size);
+                    cpds.setInitialPoolSize(databasePool.init_size);
+                    cpds.setMinPoolSize(databasePool.min_size);
                     cpds.setTestConnectionOnCheckout(true);
+                    cpds.setTestConnectionOnCheckin(databasePool.test_connection_on_checkin);
+                    cpds.setBreakAfterAcquireFailure(databasePool.break_after_acquire_failure);
+                    if (databasePool.preferred_test_query != null && !databasePool.preferred_test_query.isBlank()) {
+                        cpds.setPreferredTestQuery(databasePool.preferred_test_query);
+                    }
+                    if (databasePool.checkout_timeout > 0) {
+                        cpds.setCheckoutTimeout(databasePool.checkout_timeout);
+                    }
+                    if (databasePool.acquire_retry_attempts >= 0) {
+                        cpds.setAcquireRetryAttempts(databasePool.acquire_retry_attempts);
+                    }
+                    if (databasePool.acquire_retry_delay >= 0) {
+                        cpds.setAcquireRetryDelay(databasePool.acquire_retry_delay);
+                    }
+                    if (databasePool.connection_is_valid_timeout > 0) {
+                        cpds.setConnectionIsValidTimeout(databasePool.connection_is_valid_timeout);
+                    }
+                    if (databasePool.max_connection_age > 0) {
+                        cpds.setMaxConnectionAge(databasePool.max_connection_age);
+                    }
+                    if (databasePool.jdbc_properties != null && !databasePool.jdbc_properties.isEmpty()) {
+                        Properties properties = new Properties();
+                        for (Map.Entry<String, Object> property : databasePool.jdbc_properties.entrySet()) {
+                            if (property.getValue() != null) {
+                                properties.setProperty(property.getKey(), String.valueOf(property.getValue()));
+                            }
+                        }
+                        cpds.setProperties(properties);
+                    }
                     pool.put(entry.getKey(), cpds);
                 } catch (PropertyVetoException e) {
                     Logger.logException(e);

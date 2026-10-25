@@ -40,7 +40,16 @@ public class Config {
         public int min_size = 5;
         public int max_size = 20;
         public int max_idle_time = 3600;
-        public int idle_conn_test = 1800;
+        public int idle_conn_test = 60;
+        public String preferred_test_query = null;
+        public int checkout_timeout = 10000;
+        public int acquire_retry_attempts = 3;
+        public int acquire_retry_delay = 1000;
+        public int connection_is_valid_timeout = 5;
+        public int max_connection_age = 0;
+        public boolean test_connection_on_checkin = false;
+        public boolean break_after_acquire_failure = false;
+        public HashMap<String, Object> jdbc_properties = new HashMap<>();
     }
 
     public static class Task {

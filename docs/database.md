@@ -45,9 +45,52 @@ database_pool:
     min_size: 5     # 最小连接数
     max_size: 20    # 最大连接数
     max_idle_time: 3600 # 最大空闲时间，单位秒
-    idle_conn_test: 1800  # 空闲连接测试时间，单位秒
-    
+    idle_conn_test: 60  # 空闲连接测试间隔，单位秒
+    checkout_timeout: 10000 # 获取连接的超时时间，单位毫秒
+    acquire_retry_attempts: 3 # 创建连接失败后的重试次数
+    acquire_retry_delay: 1000 # 创建连接失败后的重试间隔，单位毫秒
+    connection_is_valid_timeout: 5 # isValid检测超时时间，单位秒
+    max_connection_age: 0 # 连接最大存活时间，单位秒，0为不限制
+    test_connection_on_checkin: false # 归还连接时是否检测
+    break_after_acquire_failure: false # 重试失败后是否永久关闭连接池
+    jdbc_properties: # JDBC驱动参数
+      connectTimeout: 5000
+      socketTimeout: 10000
+      tcpKeepAlive: true
 ```
+
+#### 连接池配置
+
+| 名称 | 默认值 | 说明 |
+|-----|-------|-----|
+| `url` | | 数据库地址，不需要填写`jdbc:`前缀 |
+| `username` | | 用户名 |
+| `password` | | 密码 |
+| `init_size` | 5 | 初始化连接数 |
+| `min_size` | 5 | 最小连接数 |
+| `max_size` | 20 | 最大连接数 |
+| `max_idle_time` | 3600 | 最大空闲时间，单位秒 |
+| `idle_conn_test` | 60 | 空闲连接测试间隔，单位秒 |
+| `preferred_test_query` | 空 | 连接检测SQL，为空时使用`Connection.isValid()` |
+| `checkout_timeout` | 10000 | 获取连接的超时时间，单位毫秒，0为不限制 |
+| `acquire_retry_attempts` | 3 | 创建连接失败后的重试次数 |
+| `acquire_retry_delay` | 1000 | 创建连接失败后的重试间隔，单位毫秒 |
+| `connection_is_valid_timeout` | 5 | `Connection.isValid()`检测超时时间，单位秒，0为不限制 |
+| `max_connection_age` | 0 | 连接最大存活时间，单位秒，0为不限制 |
+| `test_connection_on_checkin` | false | 归还连接时是否检测 |
+| `break_after_acquire_failure` | false | 重试失败后是否永久关闭连接池 |
+| `jdbc_properties` | | JDBC驱动参数 |
+
+#### 公网数据库
+
+通过公网连接MySQL时，NAT或防火墙可能会静默丢弃长时间空闲的TCP连接，导致下次获取连接时卡顿数十秒。建议：
+
+- 将`idle_conn_test`设置为小于NAT空闲超时的值，例如`60`秒。
+- 通过`jdbc_properties`设置`connectTimeout`、`socketTimeout`和`tcpKeepAlive`。
+- 将`checkout_timeout`设置为合理值，避免请求无限等待。
+- 如仍然出现空闲断连，可将`max_idle_time`设置为小于NAT空闲超时的值，让连接主动过期重建。
+
+注意：`socketTimeout`会限制所有SQL的执行时间，请根据实际查询耗时调整，避免长查询被中断。设置`preferred_test_query`后，c3p0会改用该SQL检测连接并忽略`connection_is_valid_timeout`，此时应同时设置`socketTimeout`，避免死连接检测被无限阻塞。
 使用方法示例
 ```
     var database = module("Database");
