@@ -52,8 +52,7 @@ public class WebServer {
 
         server = new Server(Hammer.config.httpPort);
         server.setHandler(context);
-        SslContextFactory.Server factory = new SslContextFactory.Server();
-        connector = new ServerConnector(server, factory);
+        connector = new ServerConnector(server);
         SslKey sslKey = margeSSL();
         if (sslKey != null) {
             SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
