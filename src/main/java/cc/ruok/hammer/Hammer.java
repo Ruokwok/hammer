@@ -124,18 +124,47 @@ public class Hammer {
 
     public static void stop() {
         Logger.info("Stopping server...");
+        Thread stopper = new Thread(Hammer::stopServices, "hammer-stop");
+        stopper.start();
+        try {
+            stopper.join(15000);
+        } catch (InterruptedException ignored) {
+        }
+        System.exit(0);
+    }
+
+    private static void stopServices() {
         try {
             WebServer.unloadAll();
-            CronUtil.stop();
-            new File(PROCESS_PATH).delete();
-            WebServer.getInstance().stop();
-            ContextPool.close();
-            for (HammerPlugin plugin : new ArrayList<>(PluginManager.list)) {
-                PluginManager.unload(plugin);
-            }
         } catch (Exception e) {
-            Logger.warning("An error occurred while stop server, force exit.");
-            System.exit(1);
+            Logger.logException(e);
+        }
+        try {
+            CronUtil.stop();
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        try {
+            FileUtils.deleteDirectory(new File(PROCESS_PATH));
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        try {
+            WebServer.getInstance().stop();
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        try {
+            ContextPool.close();
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        for (HammerPlugin plugin : new ArrayList<>(PluginManager.list)) {
+            try {
+                PluginManager.unload(plugin);
+            } catch (Exception e) {
+                Logger.logException(e);
+            }
         }
     }
 
