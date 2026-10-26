@@ -35,86 +35,93 @@ public class Script {
             list.add(new Content(script, false));
             return;
         }
-        char[] chars = script.toCharArray();
-        boolean inScript = false;
-        boolean inString = false;
-//        boolean qm = true;
-        byte tag = 0;
+        String open = "<?hsp";
+        char[] s = script.toCharArray();
+        int n = s.length;
         StringBuilder buffer = new StringBuilder();
-        StringBuilder cache = new StringBuilder();
-        for (char c : chars) {
+        StringBuilder code = new StringBuilder();
+        boolean inScript = false;
+        int mode = 0;
+        char quote = 0;
+        boolean escaped = false;
+        int i = 0;
+        while (i < n) {
             if (!inScript) {
-                if (c == '<' && tag == 0) {
-                    tag++;
-                    cache.append(c);
-                } else if (c == '?' && tag == 1) {
-                    tag++;
-                    cache.append(c);
-                } else if (c == 'h' && tag == 2) {
-                    tag++;
-                    cache.append(c);
-                } else if (c == 's' && tag == 3) {
-                    tag++;
-                    cache.append(c);
-                } else if (c == 'p' && tag == 4) {
-                    tag++;
-                    cache.append(c);
-                } else if ((c == ' ' || c == '\n' || c == '\r') && tag == 5) {
-                    tag = 0;
-                    inScript = true;
-                    buffer.append(c);
-                    list.add(new Content(buffer.toString(), false));
-                    buffer = new StringBuilder();
-                    cache = new StringBuilder();
-                } else {
-                    if (cache.length() > 0) {
-                        buffer.append(cache);
-                        cache = new StringBuilder();
-                    }
-                    tag = 0;
-                    buffer.append(c);
-                }
-            } else {
-                if (!inString && c == '"') {
-                    inString = true;
-//                    qm = true;
-                    buffer.append(c);
-                } else if (!inString && c == '\'') {
-                    inString = true;
-//                    qm = false;
-                    buffer.append(c);
-                } else if ((inString) && c == '"') {
-                    inString = false;
-                    buffer.append(c);
-                } else if ((inString) && c == '\'') {
-                    inString = false;
-                    buffer.append(c);
-                } else {
-//                    if (inString && c == '\\') {
-//
-//                    }
-                    if (!inString && c == '?' && tag == 0) {
-                        tag++;
-                        cache.append(c);
-                    } else if (!inString && c == '>' && tag == 1) {
-                        tag = 0;
-                        inScript = false;
-                        buffer.append(';');
-                        list.add(new Content(buffer.toString(), true));
+                if (s[i] == '<' && i + open.length() <= n && script.startsWith(open, i)) {
+                    int j = i + open.length();
+                    if (j < n && Character.isWhitespace(s[j])) {
+                        inScript = true;
+                        buffer.append(s[j]);
+                        list.add(new Content(buffer.toString(), false));
                         buffer = new StringBuilder();
-                        cache = new StringBuilder();
-                    } else {
-                        if (cache.length() > 0) {
-                            buffer.append(cache);
-                            cache = new StringBuilder();
-                        }
-                        tag = 0;
-                        buffer.append(c);
+                        i = j + 1;
+                        continue;
                     }
                 }
+                buffer.append(s[i]);
+                i++;
+            } else {
+                char c = s[i];
+                if (mode == 4) {
+                    if (c == '\n' || c == '\r') mode = 0;
+                    code.append(c);
+                    i++;
+                    continue;
+                }
+                if (mode == 3) {
+                    if (c == '*' && i + 1 < n && s[i + 1] == '/') {
+                        code.append("*/");
+                        i += 2;
+                        mode = 0;
+                    } else {
+                        code.append(c);
+                        i++;
+                    }
+                    continue;
+                }
+                if (mode != 0) {
+                    if (escaped) {
+                        escaped = false;
+                    } else if (c == '\\') {
+                        escaped = true;
+                    } else if (c == quote) {
+                        mode = 0;
+                    }
+                    code.append(c);
+                    i++;
+                    continue;
+                }
+                if (c == '"' || c == '\'' || c == '`') {
+                    mode = 1;
+                    quote = c;
+                    escaped = false;
+                    code.append(c);
+                    i++;
+                    continue;
+                }
+                if (c == '/' && i + 1 < n && (s[i + 1] == '/' || s[i + 1] == '*')) {
+                    mode = s[i + 1] == '/' ? 4 : 3;
+                    code.append(c).append(s[i + 1]);
+                    i += 2;
+                    continue;
+                }
+                if (c == '?' && i + 1 < n && s[i + 1] == '>') {
+                    inScript = false;
+                    code.append(';');
+                    list.add(new Content(code.toString(), true));
+                    code = new StringBuilder();
+                    i += 2;
+                    continue;
+                }
+                code.append(c);
+                i++;
             }
         }
-        list.add(new Content(buffer.toString(), inScript));
+        if (inScript) {
+            list.add(new Content(code.toString(), true));
+        } else {
+            list.add(new Content(buffer.toString(), false));
+        }
     }
 
     public String compile() {
