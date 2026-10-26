@@ -1,6 +1,5 @@
 package cc.ruok.hammer;
 
-import cn.hutool.setting.yaml.YamlUtil;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -34,32 +33,8 @@ public class HammerConfig {
             HammerConfig config = new HammerConfig();
             config.httpPort = 80;
             config.httpsPort = 443;
-            config.scriptFileTypes.add("hsp");
-            config.scriptFileTypes.add("hs");
-            config.scriptFileTypes.add("hspx");
-            config.fileHeader.put("apk", "application/vnd.android.package-archive");
-            config.fileHeader.put("css", "text/css");
-            config.fileHeader.put("gif", "image/gif");
-            config.fileHeader.put("htm", "text/html");
-            config.fileHeader.put("html", "text/html");
-            config.fileHeader.put("htx", "text/html");
-            config.fileHeader.put("hso", "text/html");
-            config.fileHeader.put("ico", "image/x-icon");
-            config.fileHeader.put("img", "application/x-img");
-            config.fileHeader.put("ipa", "application/vnd.iphone");
-            config.fileHeader.put("jpeg", "image/jpeg");
-            config.fileHeader.put("jpg", "image/jpeg");
-            config.fileHeader.put("js", "application/x-javascript");
-            config.fileHeader.put("pdf", "application/pdf");
-            config.fileHeader.put("png", "image/png");
-            config.fileHeader.put("ppt", "application/vnd.ms-powerpoint");
-            config.fileHeader.put("txt", "text/plain");
-            config.fileHeader.put("doc", "application/msword");
-            config.fileHeader.put("docx", "application/msword");
-            config.fileHeader.put("xhtml", "text/html");
-            config.fileHeader.put("xls", "application/vnd.ms-excel");
-            config.fileHeader.put("xlsx", "application/vnd.ms-excel");
-            config.fileHeader.put("xml", "text/xml");
+            config.scriptFileTypes = defaultScriptFileTypes();
+            config.fileHeader = defaultFileHeader();
             Representer customRepresenter = new Representer(new DumperOptions());
             customRepresenter.addClassTag(HammerConfig.class, Tag.MAP);
             Yaml yaml = new Yaml(new Constructor(HammerConfig.class, new LoaderOptions()), customRepresenter);
@@ -69,8 +44,60 @@ public class HammerConfig {
             return config;
         } else {
             Yaml yaml = new Yaml(options);
-            return yaml.loadAs(new FileReader(file), HammerConfig.class);
+            HammerConfig config;
+            try (FileReader reader = new FileReader(file)) {
+                config = yaml.loadAs(reader, HammerConfig.class);
+            }
+            if (config == null) config = new HammerConfig();
+            if (config.httpPort <= 0) config.httpPort = 80;
+            if (config.httpsPort <= 0) config.httpsPort = 443;
+            if (config.scriptFileTypes == null || config.scriptFileTypes.isEmpty()) {
+                config.scriptFileTypes = defaultScriptFileTypes();
+            }
+            if (config.fileHeader == null || config.fileHeader.isEmpty()) {
+                config.fileHeader = defaultFileHeader();
+            }
+            if (config.contextPoolSize <= 0) {
+                config.contextPoolSize = Math.max(8, Runtime.getRuntime().availableProcessors() * 2);
+            }
+            return config;
         }
+    }
+
+    public static ArrayList<String> defaultScriptFileTypes() {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("hsp");
+        list.add("hs");
+        list.add("hspx");
+        return list;
+    }
+
+    public static HashMap<String, String> defaultFileHeader() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("apk", "application/vnd.android.package-archive");
+        map.put("css", "text/css");
+        map.put("gif", "image/gif");
+        map.put("htm", "text/html");
+        map.put("html", "text/html");
+        map.put("htx", "text/html");
+        map.put("hso", "text/html");
+        map.put("ico", "image/x-icon");
+        map.put("img", "application/x-img");
+        map.put("ipa", "application/vnd.iphone");
+        map.put("jpeg", "image/jpeg");
+        map.put("jpg", "image/jpeg");
+        map.put("js", "application/x-javascript");
+        map.put("pdf", "application/pdf");
+        map.put("png", "image/png");
+        map.put("ppt", "application/vnd.ms-powerpoint");
+        map.put("txt", "text/plain");
+        map.put("doc", "application/msword");
+        map.put("docx", "application/msword");
+        map.put("xhtml", "text/html");
+        map.put("xls", "application/vnd.ms-excel");
+        map.put("xlsx", "application/vnd.ms-excel");
+        map.put("xml", "text/xml");
+        return map;
     }
 
 }
