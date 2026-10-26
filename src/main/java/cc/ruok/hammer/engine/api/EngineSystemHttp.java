@@ -86,13 +86,20 @@ public class EngineSystemHttp extends EngineSystem {
         String uuid = UUID.randomUUID().toString();
         for (Part part : parts) {
             if (name == null || name.equals(part.getName())) {
-                if (part.getSubmittedFileName().isEmpty()) break;
-                File file = new File("temp/" + uuid + "/" + part.getSubmittedFileName());
+                String submitted = part.getSubmittedFileName();
+                if (submitted == null || submitted.isEmpty()) continue;
+                String filename = submitted.replace('\\', '/');
+                filename = filename.substring(filename.lastIndexOf('/') + 1);
+                if (filename.isEmpty() || filename.equals(".") || filename.equals("..")) continue;
                 partsDir = new File("temp/" + uuid);
-                partsDir.mkdir();
-                FileOutputStream stream = new FileOutputStream(file);
-                IOUtils.write(part.getInputStream().readAllBytes(), stream);
-                stream.close();
+                if (!partsDir.exists() && !partsDir.mkdirs()) {
+                    throw new IOException("Failed to create upload directory: " + partsDir.getAbsolutePath());
+                }
+                File file = new File(partsDir, filename);
+                if (!file.getCanonicalPath().startsWith(partsDir.getCanonicalPath() + File.separator)) continue;
+                try (FileOutputStream stream = new FileOutputStream(file)) {
+                    IOUtils.write(part.getInputStream().readAllBytes(), stream);
+                }
                 list.add(new EngineFile(file, engine));
             }
         }
