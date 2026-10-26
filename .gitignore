@@ -1,2 +1,4 @@
 # Project exclude paths
 /target/
+working/
+dependency-reduced-pom.xml
