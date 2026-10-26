@@ -13,7 +13,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.*;
@@ -84,11 +87,12 @@ public class WebServer {
         } else {
             KeyStore ksMerged = KeyStore.getInstance("JKS");
             ksMerged.load(null, null);
+            char[] password = randomKeyStorePassword();
             for (Map.Entry<String, SslKey> entry : sniMap.entrySet()) {
                 KeyStore ks = KeyStore.getInstance("JKS");
-                FileInputStream fis = new FileInputStream("ssl/" + entry.getValue().getFileName());
-                ks.load(fis, entry.getValue().getPassword().toCharArray());
-                fis.close();
+                try (FileInputStream fis = new FileInputStream("ssl/" + entry.getValue().getFileName())) {
+                    ks.load(fis, entry.getValue().getPassword().toCharArray());
+                }
 
                 Enumeration<String> aliases1 = ks.aliases();
                 while (aliases1.hasMoreElements()) {
@@ -96,22 +100,39 @@ public class WebServer {
                     if (ks.isKeyEntry(alias)) {
                         Key key = ks.getKey(alias, entry.getValue().getPassword().toCharArray());
                         java.security.cert.Certificate[] chain = ks.getCertificateChain(alias);
-                        ksMerged.setKeyEntry(alias, key, "223344".toCharArray(), chain);
+                        ksMerged.setKeyEntry(alias, key, password, chain);
                     } else {
                         Certificate cert = ks.getCertificate(alias);
                         ksMerged.setCertificateEntry(alias, cert);
                     }
                 }
             }
-            FileOutputStream fos = new FileOutputStream("merged.jks");
-            ksMerged.store(fos, "223344".toCharArray());
-            fos.close();
-            SslKey sslKey = new SslKey("merged.jks", "223344");
+            try (FileOutputStream fos = new FileOutputStream("merged.jks")) {
+                ksMerged.store(fos, password);
+            }
+            File merged = new File("merged.jks");
+            restrictPermission(merged);
+            SslKey sslKey = new SslKey("merged.jks", new String(password));
             sslKey.isMerged = true;
             Logger.info("Merging multiple SSL keystore");
             return sslKey;
         }
         return null;
+    }
+
+    private static char[] randomKeyStorePassword() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[24];
+        random.nextBytes(bytes);
+        return Base64.getEncoder().encodeToString(bytes).toCharArray();
+    }
+
+    private static void restrictPermission(File file) {
+        try {
+            Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-------");
+            Files.setPosixFilePermissions(file.toPath(), perms);
+        } catch (Exception ignore) {
+        }
     }
 
     public void addSSL(String keyFile, String password) {
