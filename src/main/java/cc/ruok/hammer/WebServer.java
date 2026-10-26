@@ -140,7 +140,10 @@ public class WebServer {
     }
 
     public static void loadAll() {
-        for (File file : Hammer.CONFIG_PATH.listFiles()) {
+        File[] files = Hammer.CONFIG_PATH.listFiles();
+        if (files == null) return;
+        Arrays.sort(files, Comparator.comparing(File::getName));
+        for (File file : files) {
             if (file.isFile() && file.getName().endsWith(".yml")) {
                 try {
                     load(file);
@@ -196,7 +199,10 @@ public class WebServer {
     }
 
     public void putDomain(String domain, WebSite site) {
-        sites.putIfAbsent(domain, site);
+        WebSite old = sites.putIfAbsent(domain, site);
+        if (old != null && old != site) {
+            Logger.warning("Domain conflict: '" + domain + "' already bound to [" + old.getName() + "], configuring [" + site.getName() + "] is ignored.");
+        }
     }
 
     public List<WebSite> getWebSites() {
