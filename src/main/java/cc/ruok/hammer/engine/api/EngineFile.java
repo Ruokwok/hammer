@@ -64,6 +64,11 @@ public class EngineFile {
         return file.length();
     }
 
+    public byte[] readBytes() throws EngineException {
+        if (!read) throw new EngineException("no permission.");
+        return FileUtil.readBytes(file);
+    }
+
     public String readString(String charset) throws EngineException {
         if (!read) throw new EngineException("no permission.");
         try {

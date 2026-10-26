@@ -4,7 +4,6 @@ import cc.ruok.hammer.engine.Engine;
 import cn.hutool.core.codec.Base32;
 import cn.hutool.core.codec.Base62;
 import cn.hutool.core.codec.Base64;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.HexUtil;
 
 public class EngineCodec extends EngineAPI {
@@ -13,10 +12,10 @@ public class EngineCodec extends EngineAPI {
         super(engine);
     }
 
-    public String base32Encode(Object obj) {
+    public String base32Encode(Object obj) throws EngineException {
         if (obj == null) return null;
         if (obj instanceof EngineFile) {
-            return Base32.encode(FileUtil.readBytes(((EngineFile) obj).file));
+            return Base32.encode(((EngineFile) obj).readBytes());
         } else {
             return Base32.encode(obj.toString());
         }
@@ -26,10 +25,10 @@ public class EngineCodec extends EngineAPI {
         return Base32.decodeStr(str);
     }
 
-    public String base62Encode(Object obj) {
+    public String base62Encode(Object obj) throws EngineException {
         if (obj == null) return null;
         if (obj instanceof EngineFile) {
-            return Base62.encode(FileUtil.readBytes(((EngineFile) obj).file));
+            return Base62.encode(((EngineFile) obj).readBytes());
         } else {
             return Base62.encode(obj.toString());
         }
@@ -39,10 +38,10 @@ public class EngineCodec extends EngineAPI {
         return Base62.decodeStr(str);
     }
 
-    public String base64Encode(Object obj) {
+    public String base64Encode(Object obj) throws EngineException {
         if (obj == null) return null;
         if (obj instanceof EngineFile) {
-            return Base64.encode(FileUtil.readBytes(((EngineFile) obj).file));
+            return Base64.encode(((EngineFile) obj).readBytes());
         } else {
             return Base64.encode(obj.toString());
         }
