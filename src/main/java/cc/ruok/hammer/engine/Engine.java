@@ -6,6 +6,7 @@ import cc.ruok.hammer.engine.api.EngineAPI;
 import cc.ruok.hammer.engine.api.EngineException;
 import cc.ruok.hammer.engine.api.EngineSystem;
 import cc.ruok.hammer.site.ScriptWebSite;
+import cn.hutool.http.HtmlUtil;
 import org.apache.commons.io.IOUtils;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
@@ -157,7 +158,8 @@ public class Engine {
 
     public void error(PolyglotException e) {
         if (consoleException) Logger.logException(e);
-        StringBuilder msg = new StringBuilder(e.getMessage().replaceAll("System\\.output\\('........'\\);", ""));
+        String message = e.getMessage();
+        StringBuilder msg = new StringBuilder(message == null ? "" : message.replaceAll("System\\.output\\('........'\\);", ""));
         int line = 0;
         SourceSection location = e.getSourceLocation();
         if (location != null) line = location.getStartLine();
@@ -182,7 +184,7 @@ public class Engine {
         if (line > 0) {
             msg.append(" (on line ").append(line).append(")");
         }
-        outputScript("<p style='color:red'><strong>Error: </strong>" + msg + "</p>");
+        outputScript("<p style='color:red'><strong>Error: </strong>" + HtmlUtil.escape(msg.toString()) + "</p>");
     }
 
     public Context getContext() {

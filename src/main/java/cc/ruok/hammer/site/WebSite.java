@@ -4,6 +4,7 @@ import cc.ruok.hammer.*;
 import cc.ruok.hammer.error.Http403Exception;
 import cc.ruok.hammer.error.Http500Exception;
 import cc.ruok.hammer.error.HttpException;
+import cn.hutool.http.HtmlUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
@@ -34,7 +35,7 @@ public abstract class WebSite {
     public static String notSite(String domain) {
         try {
             String page = IOUtils.toString(WebSite.class.getResourceAsStream("/default_page/no_site.html"), "utf8");
-            return page.replaceAll("\\{\\{domain}}", domain).replaceAll("\\$\\{version}", Hammer.getVersion());
+            return page.replace("{{domain}}", HtmlUtil.escape(domain)).replace("${version}", Hammer.getVersion());
         } catch (IOException e) {
             Logger.logException(e);
             return null;
@@ -110,7 +111,7 @@ public abstract class WebSite {
                 if (page == null) page = "~/error_" + e.getCode() + ".html";
                 if (page.startsWith("~")) {
                     String string = IOUtils.toString(getClass().getResourceAsStream(page.replace("~", "/default_page")), "utf8");
-                    resp.getWriter().println(string.replaceAll("\\$\\{version}", Hammer.getVersion()));
+                    resp.getWriter().println(string.replace("${version}", Hammer.getVersion()));
                 } else {
                     file = getFile(page);
                     execute(file, req, resp);
@@ -118,12 +119,12 @@ public abstract class WebSite {
             } catch (HttpException ex) {
                 Logger.logException(e);
                 resp.setStatus(500);
-                resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.getVersion()));
+                resp.getWriter().println(new Http500Exception(this).getPage().replace("${version}", Hammer.getVersion()));
             }
         } catch (Throwable e) {
             Logger.logException(new RuntimeException(e));
             resp.setStatus(500);
-            resp.getWriter().println(new Http500Exception(this).getPage().replaceAll("\\$\\{version}", Hammer.getVersion()));
+            resp.getWriter().println(new Http500Exception(this).getPage().replace("${version}", Hammer.getVersion()));
         }
     }
 
