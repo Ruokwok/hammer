@@ -29,6 +29,7 @@ public class Console extends WebSite {
         if (!host.equals("[0:0:0:0:0:0:0:1]") && !host.equals("127.0.0.1")) return;
         if (Hammer.getToken() == null || !Hammer.getToken().equals(req.getHeader("Token"))) return;
         Echo echo = new Echo();
+        boolean stop = false;
         try {
             String[] url = req.getRequestURI().substring(1).split("/");
             if (url[0].equals("plugins")) {
@@ -36,7 +37,7 @@ public class Console extends WebSite {
             } else if (url[0].equals("status")) {
                 echo = status();
             } else if (url[0].equals("stop")) {
-                Hammer.stop();
+                stop = true;
             } else if (url[0].equals("reload")) {
                 reload();
             } else if (url[0].equals("websites")) {
@@ -45,7 +46,9 @@ public class Console extends WebSite {
         } catch (Exception e) {
         } finally {
             resp.getWriter().print(echo);
+            resp.getWriter().flush();
         }
+        if (stop) Hammer.stop();
     }
 
     private Echo plugins() {

@@ -236,8 +236,9 @@ public class WebServer {
     }
 
     protected void stop() throws Exception {
-        server.stop();
-        connector.stop();
+        if (server != null) {
+            server.stop();
+        }
     }
 
     protected Map<String, WebSite> getSites() {

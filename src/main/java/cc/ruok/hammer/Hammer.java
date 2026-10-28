@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Hammer {
 
@@ -33,6 +34,7 @@ public class Hammer {
     private static String token;
     private static String version = "self-build version";
     private static ConfigWatchdog configWatchdog;
+    private static final AtomicBoolean STOPPING = new AtomicBoolean(false);
 
     static {
         try {
@@ -69,6 +71,7 @@ public class Hammer {
             Logger.info("Hammer is stopped.");
         } catch (Exception e) {
             Logger.logException(e);
+            System.exit(1);
         }
     }
 
@@ -123,29 +126,31 @@ public class Hammer {
     }
 
     public static void stop() {
+        if (!STOPPING.compareAndSet(false, true)) return;
         Logger.info("Stopping server...");
-        Thread stopper = new Thread(Hammer::stopServices, "hammer-stop");
+        Thread stopper = new Thread(() -> {
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ignored) {
+            }
+            stopServices();
+            System.exit(0);
+        }, "hammer-stop");
         stopper.start();
-        try {
-            stopper.join(15000);
-        } catch (InterruptedException ignored) {
-        }
-        System.exit(0);
+        Thread halt = new Thread(() -> {
+            try {
+                stopper.join(30000);
+            } catch (InterruptedException ignored) {
+            }
+            System.exit(0);
+        }, "hammer-halt");
+        halt.setDaemon(true);
+        halt.start();
     }
 
     private static void stopServices() {
         try {
-            WebServer.unloadAll();
-        } catch (Exception e) {
-            Logger.logException(e);
-        }
-        try {
             CronUtil.stop();
-        } catch (Exception e) {
-            Logger.logException(e);
-        }
-        try {
-            FileUtils.deleteDirectory(new File(PROCESS_PATH));
         } catch (Exception e) {
             Logger.logException(e);
         }
@@ -155,7 +160,17 @@ public class Hammer {
             Logger.logException(e);
         }
         try {
+            WebServer.unloadAll();
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        try {
             ContextPool.close();
+        } catch (Exception e) {
+            Logger.logException(e);
+        }
+        try {
+            FileUtils.deleteDirectory(new File(PROCESS_PATH));
         } catch (Exception e) {
             Logger.logException(e);
         }
@@ -175,7 +190,10 @@ public class Hammer {
     }
 
     public static void stopConfigWatchdog() {
-        configWatchdog.stop();
+        if (configWatchdog != null) {
+            configWatchdog.stop();
+            configWatchdog = null;
+        }
     }
     public static void testEngine() {
         Logger.debug("Testing JavaScript engine.");
