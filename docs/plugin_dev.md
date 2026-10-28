@@ -16,7 +16,7 @@
 Hammer插件最低支持JDK17。
 
 #### 清单文件
-创建`src/resources/plugin.yml`文件，内容如下
+创建`src/main/resources/plugin.yml`文件（该文件需位于打包后JAR的根目录），内容如下
 ```yaml
 name: PluginName      # 插件名称
 author: AuthorName    # 插件作者

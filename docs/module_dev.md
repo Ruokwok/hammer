@@ -52,9 +52,11 @@ public class MyPlugin extends HammerPlugin {
 }
 ```
 
-com.exxample.MyModule.java
+com.example.MyModule.java
 ```java
 package com.example;
+
+import cc.ruok.hammer.Logger;
 
 public class MyModule {
     

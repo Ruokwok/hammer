@@ -34,7 +34,7 @@ public abstract class WebSite {
     public static String notSite(String domain) {
         try {
             String page = IOUtils.toString(WebSite.class.getResourceAsStream("/default_page/no_site.html"), "utf8");
-            return page.replaceAll("\\{\\{domain}}", domain);
+            return page.replaceAll("\\{\\{domain}}", domain).replaceAll("\\$\\{version}", Hammer.getVersion());
         } catch (IOException e) {
             Logger.logException(e);
             return null;
