@@ -84,7 +84,7 @@ public class PseudoStatic {
                 }
                 int start = spl.get(i).length();
                 String var = url.substring(start + offset, end);
-                temp = temp.replaceAll("\\{" + (i + 1) + "}", var);
+                temp = temp.replace("{" + (i + 1) + "}", var);
                 offset = end;
             }
             return temp;
