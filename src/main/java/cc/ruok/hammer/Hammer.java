@@ -101,8 +101,13 @@ public class Hammer {
                 FileUtils.writeStringToFile(new File(PROCESS_PATH + "/HTTPS"), String.valueOf(config.httpsPort));
             }
             if (param.startsWith("--token=")) {
-                token = param.substring(param.indexOf("=") + 1);
+                String value = param.substring(param.indexOf("=") + 1);
+                if (!value.isEmpty()) token = value;
             }
+        }
+        if (token == null) {
+            String env = System.getenv("HAMMER_TOKEN");
+            if (env != null && !env.isEmpty()) token = env;
         }
         if (!CONFIG_PATH.exists()) {
             CONFIG_PATH.mkdir();

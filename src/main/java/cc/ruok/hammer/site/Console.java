@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +29,9 @@ public class Console extends WebSite {
     public void handler(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String host = req.getRemoteHost();
         if (!host.equals("[0:0:0:0:0:0:0:1]") && !host.equals("127.0.0.1")) return;
-        if (Hammer.getToken() == null || !Hammer.getToken().equals(req.getHeader("Token"))) return;
+        String header = req.getHeader("Token");
+        if (Hammer.getToken() == null || header == null) return;
+        if (!MessageDigest.isEqual(Hammer.getToken().getBytes(StandardCharsets.UTF_8), header.getBytes(StandardCharsets.UTF_8))) return;
         Echo echo = new Echo();
         boolean stop = false;
         try {

@@ -37,7 +37,8 @@ function notrun {
 function ready {
 	cd $ROOT_PATH
 	mkdir -p runtime
-	cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16 > runtime/TOKEN
+	(umask 077 && cat /dev/urandom | tr -dc 'A-Za-z0-9' | head -c 16 > runtime/TOKEN)
+	chmod 600 runtime/TOKEN
 	TOKEN=$(cat runtime/TOKEN)
 	rm -f logs/log
 }
@@ -50,20 +51,25 @@ if [ "$1" == "start" ]; then
 	if [ $PID == 0 ]; then
 		ready
 		mkdir -p logs
-		$JAVA -jar $JAR -install --token=$TOKEN > logs/log 2>&1 &
+		HAMMER_TOKEN=$TOKEN $JAVA -jar $JAR -install > logs/log 2>&1 &
 		disown
 	fi
 elif [ "$1" == "run" ]; then
 	if [ $PID == 0 ]; then
 		ready
-		$JAVA -jar $JAR -install --token=$TOKEN
+		HAMMER_TOKEN=$TOKEN $JAVA -jar $JAR -install
 	else
 		echo -e "The hammer is already running."
 	fi
 elif [ "$1" == "restart" ]; then
 	stop
+	i=0
+	while [ $PID != 0 ] && kill -0 "$PID" > /dev/null 2>&1 && [ $i -lt 50 ]; do
+		sleep 0.2
+		i=$((i+1))
+	done
 	ready
-	$JAVA -jar $JAR -install --token=$TOKEN > logs/log 2>&1 &
+	HAMMER_TOKEN=$TOKEN $JAVA -jar $JAR -install > logs/log 2>&1 &
 	disown
 elif [ "$1" == "stop" ]; then
 	stop
