@@ -129,15 +129,26 @@ public abstract class WebSite {
 
     protected File getFile(String url) throws HttpException {
         File file = new File(config.path + url);
+        if (!inSite(file)) throw new HttpException(this, 404);
         if (!file.exists()) throw new HttpException(this, 404);
-        if (file.exists() && file.isDirectory()) {
+        if (file.isDirectory()) {
             File page = new File(file + "/index.hs");
             if (!page.exists()) page = new File(file + "/index.hsp");
             if (!page.exists()) page = new File(file + "/index.html");
-            if (!page.exists()) throw new HttpException(this, 403);
+            if (!page.exists() || !inSite(page)) throw new HttpException(this, 403);
             return page;
         }
         return file;
+    }
+
+    private boolean inSite(File file) {
+        try {
+            String root = new File(config.path).getCanonicalPath();
+            String path = file.getCanonicalPath();
+            return path.equals(root) || path.startsWith(root + File.separator);
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     protected String filter(String url) {

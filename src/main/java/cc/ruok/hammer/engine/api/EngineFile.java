@@ -18,14 +18,27 @@ public class EngineFile {
     public EngineFile(File file, Engine engine) {
         this.engine = engine;
         this.file = file;
-        String path = FileUtil.getAbsolutePath(engine.getWebSite().getPath()) + File.separator;
-        if (FileUtil.getAbsolutePath(file).startsWith(path)) {
-            read = engine.getWebSite().getPermission("file_read");
-            write = engine.getWebSite().getPermission("file_write");
-        } else {
-            read = engine.getWebSite().getPermission("public_file_read");
-            write = engine.getWebSite().getPermission("public_file_write");
+        boolean r = false;
+        boolean w = false;
+        try {
+            String path = engine.getWebSite().getPath().getCanonicalPath() + File.separator;
+            if (file.getCanonicalPath().startsWith(path)) {
+                r = engine.getWebSite().getPermission("file_read");
+                w = engine.getWebSite().getPermission("file_write");
+            } else {
+                r = engine.getWebSite().getPermission("public_file_read");
+                w = engine.getWebSite().getPermission("public_file_write");
+            }
+        } catch (IOException e) {
+            r = false;
+            w = false;
         }
+        read = r;
+        write = w;
+    }
+
+    public void requireRead() throws EngineException {
+        if (!read) throw new EngineException("no permission.");
     }
 
     public String getPath() {
@@ -157,6 +170,7 @@ public class EngineFile {
     }
 
     public void move(String path) throws EngineException, IOException {
+        requireRead();
         EngineFile ef = new EngineFile(new File(engine.getWebSite().getPath() + "/" + path), engine);
         if (!ef.write) throw new EngineException("no permission.");
         if (file.isFile()) {
@@ -167,6 +181,7 @@ public class EngineFile {
     }
 
     public void copy(String path) throws EngineException, IOException {
+        requireRead();
         EngineFile ef = new EngineFile(new File(engine.getWebSite().getPath() + "/" + path), engine);
         if (!ef.write) throw new EngineException("no permission.");
         if (file.isFile()) {

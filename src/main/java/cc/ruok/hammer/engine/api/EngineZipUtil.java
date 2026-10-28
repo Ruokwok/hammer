@@ -2,6 +2,7 @@ package cc.ruok.hammer.engine.api;
 
 import cc.ruok.hammer.engine.Engine;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,16 +17,15 @@ public class EngineZipUtil extends EngineAPI implements Closeable {
         super(engine);
     }
 
-    public void load(String path) throws IOException {
-        try {
-            this.zipFile = new ZipFile(engine.getWebSite().getPath() + "/" + path);
-            engine.addCloseable(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void load(String path) throws IOException, EngineException {
+        EngineFile file = new EngineFile(new File(engine.getWebSite().getPath() + "/" + path), engine);
+        file.requireRead();
+        this.zipFile = new ZipFile(file.file);
+        engine.addCloseable(this);
     }
 
-    public void load(EngineFile file) throws IOException {
+    public void load(EngineFile file) throws IOException, EngineException {
+        file.requireRead();
         this.zipFile = new ZipFile(file.file);
         engine.addCloseable(this);
     }
